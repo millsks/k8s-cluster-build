@@ -1,8 +1,7 @@
 ### Bare-Metal Kubernetes on 3 HP EliteDesk Minis
-
 Set up a production-like, bare-metal Kubernetes cluster at home using three HP EliteDesk mini PCs: one control plane and two worker nodes. This guide targets Ubuntu Server 24.04 LTS, uses containerd as the runtime, and `kubeadm` for cluster bootstrap.
 
-#### What You’ll Build
+#### What You'll Build
 - 1 Control plane node: `k8s-control`
 - 2 Worker nodes: `k8s-node1`, `k8s-node2`
 - Pod network via Flannel (Calico is an alternative)
@@ -18,17 +17,15 @@ Set up a production-like, bare-metal Kubernetes cluster at home using three HP E
 ---
 
 ### Architecture
-
-| Role           | Hostname      | CPU | RAM | Storage | Notes                                      |
+| Role | Hostname | CPU | RAM | Storage | Notes |
 |----------------|---------------|-----|-----|---------|--------------------------------------------|
-| Control Plane  | `k8s-control` | 2–4 | 8GB | 60GB+   | Runs API server, scheduler, controllers    |
-| Worker         | `k8s-node1`   | 2–4 | 8GB | 60GB+   | Schedules workloads                        |
-| Worker         | `k8s-node2`   | 2–4 | 8GB | 60GB+   | Schedules workloads                        |
+| Control Plane | `k8s-control` | 2–4 | 8GB | 60GB+ | Runs API server, scheduler, controllers |
+| Worker | `k8s-node1` | 2–4 | 8GB | 60GB+ | Schedules workloads |
+| Worker | `k8s-node2` | 2–4 | 8GB | 60GB+ | Schedules workloads |
 
 ---
 
 ### Step 1: Install Ubuntu Server 24.04 LTS
-
 Perform these on each machine during OS install:
 - Set hostname:
   - Control plane: `k8s-control`
@@ -66,7 +63,6 @@ sudo netplan apply
 ---
 
 ### Step 2: Install containerd (all nodes)
-
 ```bash
 sudo apt install -y containerd
 sudo mkdir -p /etc/containerd
@@ -86,7 +82,6 @@ sudo systemctl restart containerd
 ---
 
 ### Step 3: Disable swap and configure kernel params (all nodes)
-
 ```bash
 sudo swapoff -a
 sudo sed -i '/ swap / s/^/#/' /etc/fstab
@@ -107,12 +102,12 @@ sudo sysctl --system
 ---
 
 ### Step 4: Install kubeadm, kubelet, kubectl (all nodes)
-
 Use the official Kubernetes apt repository.
 
 ```bash
 sudo apt install -y apt-transport-https curl gpg
 sudo mkdir -p /etc/apt/keyrings
+
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | \
   sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
@@ -126,7 +121,57 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 ---
 
-### Step 5: Initialize the control plane (on `k8s-control` only)
+### Step 4.5: Install CNI plugins (all nodes)
+
+**⚠️ IMPORTANT:** Standard CNI plugin binaries must be installed **before** initializing the cluster. These are separate from the CNI configuration that Flannel provides.
+
+```bash
+CNI_VERSION="v1.3.0"
+sudo mkdir -p /opt/cni/bin
+curl -L "https://github.com/containernetworking/plugins/releases/download/${CNI_VERSION}/cni-plugins-linux-amd64-${CNI_VERSION}.tgz" | \
+  sudo tar -C /opt/cni/bin -xz
+```
+
+Verify installation:
+```bash
+ls /opt/cni/bin/
+```
+
+You should see: `loopback`, `bridge`, `host-local`, `portmap`, `bandwidth`, `firewall`, and others.
+
+**Why this is needed:** Without these binaries, pods will fail to create with errors like:
+```
+failed to find plugin "loopback" in path [/opt/cni/bin]
+```
+
+---
+
+### Step 5: Pre-flight checks (control plane only)
+
+Before initializing, ensure no conflicting Kubernetes distributions are installed (e.g., MicroK8s, k3s):
+
+```bash
+# Check for port conflicts
+sudo ss -ltnp '( sport = :6443 or sport = :10250 or sport = :10257 or sport = :10259 )'
+```
+
+If you see any processes (especially `kubelite` from MicroK8s), remove them:
+
+```bash
+# Remove MicroK8s if present
+sudo snap remove microk8s
+
+# Clean up any previous kubeadm state
+sudo kubeadm reset -f
+sudo rm -rf /var/lib/kubelet /etc/kubernetes /var/lib/etcd /etc/cni /var/lib/cni
+
+# Verify ports are free
+sudo ss -ltnp '( sport = :6443 or sport = :10250 or sport = :10257 or sport = :10259 )'
+```
+
+---
+
+### Step 6: Initialize the control plane (on `k8s-control` only)
 
 Pick a Pod CIDR for your CNI. For Flannel, use `10.244.0.0/16`.
 
@@ -134,7 +179,7 @@ Pick a Pod CIDR for your CNI. For Flannel, use `10.244.0.0/16`.
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 ```
 
-When it completes, copy the `kubeadm join` command it prints — you’ll need it for workers.
+When it completes, copy the `kubeadm join` command it prints — you'll need it for workers.
 
 Configure kubectl for your user:
 ```bash
@@ -150,27 +195,48 @@ kubectl get nodes
 
 ---
 
-### Step 6: Install a Pod network (CNI) on the control plane
+### Step 7: Install a Pod network (CNI) on the control plane
 
 Flannel (simple, reliable for homelabs):
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
 ```
 
-Wait a minute or two, then:
+**If the node remains NotReady after installing Flannel:**
+
+The container runtime may need to be restarted to pick up the CNI configuration:
+
+```bash
+# Restart containerd and kubelet
+sudo systemctl restart containerd
+sudo systemctl restart kubelet
+```
+
+Wait a minute or two, then verify:
 ```bash
 kubectl get pods -n kube-system
+kubectl get pods -n kube-flannel
 kubectl get nodes
 ```
-The control plane should transition to `Ready`.
+
+The control plane should transition to `Ready`, and CoreDNS pods should be `Running`.
+
+**Verify Flannel interface:**
+```bash
+ip addr show flannel.1
+```
+
+You should see a `flannel.1` interface with an IP like `10.244.0.0/32`.
 
 Alternative: Calico (advanced policy, BGP support) — see Calico docs for the correct manifest for your K8s version.
 
 ---
 
-### Step 7: Join worker nodes (`k8s-node1`, `k8s-node2`)
+### Step 8: Join worker nodes (`k8s-node1`, `k8s-node2`)
 
-On each worker, run the `kubeadm join ...` command output by Step 5, for example:
+**Before joining workers, ensure CNI plugins are installed on each worker node** (see Step 4.5).
+
+On each worker, run the `kubeadm join ...` command output by Step 6, for example:
 ```bash
 sudo kubeadm join 192.168.1.10:6443 --token <token> \
   --discovery-token-ca-cert-hash sha256:<hash>
@@ -191,8 +257,7 @@ k8s-node2     Ready    <none>          Xm    v1.30.x
 
 ---
 
-### Step 8: Functional test
-
+### Step 9: Functional test
 ```bash
 kubectl create deployment nginx --image=nginx
 kubectl expose deployment nginx --port=80 --type=NodePort
@@ -201,7 +266,7 @@ kubectl get svc
 
 Open in a browser:
 ```
-http://<any-node-ip>:<nodePort>
+http://<node-ip>:<nodeport>
 ```
 
 You should see the default NGINX page.
@@ -235,7 +300,6 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 ---
 
 ### Maintenance
-
 - Update packages periodically:
 ```bash
 sudo apt update && sudo apt upgrade -y
@@ -247,22 +311,134 @@ sudo apt update && sudo apt upgrade -y
 
 ### Troubleshooting
 
-- Control plane stays NotReady: CNI not installed or failing. Check `kubectl get pods -n kube-system` and logs.
-- Workers won’t join: Token expired — create a new one:
+#### Control plane stays NotReady
+**Symptom:** Node shows `NotReady` status after `kubeadm init`.
+
+**Check node conditions:**
+```bash
+kubectl describe node <node-name> | grep -A 10 "Conditions:"
+```
+
+**Common causes:**
+
+1. **CNI not installed or failing**
+   ```bash
+   kubectl get pods -n kube-system
+   kubectl get pods -n kube-flannel
+   kubectl logs -n kube-flannel -l app=flannel
+   ```
+
+2. **Container runtime network not ready**
+
+   Error message: `container runtime network not ready: NetworkReady=false reason:NetworkPluginNotReady message:Network plugin returns error: cni plugin not initialized`
+
+   **Solution:** Restart containerd and kubelet:
+   ```bash
+   sudo systemctl restart containerd
+   sudo systemctl restart kubelet
+   ```
+
+3. **Missing CNI plugin binaries**
+
+   Error in pod events: `failed to find plugin "loopback" in path [/opt/cni/bin]`
+
+   **Solution:** Install CNI plugins (see Step 4.5):
+   ```bash
+   ls /opt/cni/bin/  # Should show loopback, bridge, etc.
+   ```
+
+   If missing, install them:
+   ```bash
+   CNI_VERSION="v1.3.0"
+   curl -L "https://github.com/containernetworking/plugins/releases/download/${CNI_VERSION}/cni-plugins-linux-amd64-${CNI_VERSION}.tgz" | \
+     sudo tar -C /opt/cni/bin -xz
+   sudo systemctl restart kubelet
+   ```
+
+#### Ports already in use during kubeadm init
+**Symptom:** Error like `[ERROR Port-10250]: Port 10250 is in use`
+
+**Check what's using the ports:**
+```bash
+sudo ss -ltnp '( sport = :10250 or sport = :10257 or sport = :10259 )'
+```
+
+**If MicroK8s or another K8s distribution is running:**
+```bash
+# Remove MicroK8s
+sudo snap remove microk8s
+
+# Or stop and reset kubeadm
+sudo systemctl stop kubelet
+sudo kubeadm reset -f
+sudo rm -rf /var/lib/kubelet /etc/kubernetes /var/lib/etcd /etc/cni /var/lib/cni
+
+# Flush iptables rules
+sudo iptables -F
+sudo iptables -t nat -F
+sudo iptables -t mangle -F
+sudo iptables -X
+
+# Verify ports are free
+sudo ss -ltnp '( sport = :10250 or sport = :10257 or sport = :10259 )'
+```
+
+#### Workers won't join
+**Symptom:** Token expired or discovery fails.
+
+**Solution:** Create a new join token:
 ```bash
 kubeadm token create --print-join-command
 ```
-- Pods can’t reach internet: Verify `net.ipv4.ip_forward=1` and CNI correctness; ensure gateway/DNS in Netplan.
-- Secure Boot: Disable in BIOS or ensure signed modules are used.
-- Time sync issues: Install and enable `systemd-timesyncd` or `chrony`.
+
+#### Pods can't reach internet
+- Verify `net.ipv4.ip_forward=1`:
+  ```bash
+  sysctl net.ipv4.ip_forward
+  ```
+- Ensure gateway/DNS in Netplan
+- Check CNI correctness and Flannel logs
+
+#### CoreDNS pods stuck in ContainerCreating
+**Check pod events:**
+```bash
+kubectl describe pod -n kube-system -l k8s-app=kube-dns | grep -A 10 Events
+```
+
+**Common cause:** Missing CNI plugin binaries (see "Missing CNI plugin binaries" above).
+
+#### Secure Boot issues
+- Disable Secure Boot in BIOS, or
+- Ensure signed kernel modules are used
+
+#### Time sync issues
+Install and enable time synchronization:
+```bash
+sudo apt install -y systemd-timesyncd
+sudo systemctl enable --now systemd-timesyncd
+```
+
+---
+
+### Network Architecture Reference
+
+When using the setup described in this guide, you'll have three distinct networks:
+
+| Network | CIDR | Purpose | Used by |
+|---------|------|---------|---------|
+| **LAN/Wi-Fi** | `192.168.1.0/24` (example) | External access, management | SSH, kubectl from workstation |
+| **Cluster interconnect** | Node IPs (e.g., `192.168.1.10-12`) | Node-to-node communication | kubelet, API server, etcd |
+| **Pod network (Flannel)** | `10.244.0.0/16` | Pod-to-pod overlay network | CNI (VXLAN tunnels) |
+
+These networks must not overlap. The pod network is a virtual overlay that runs on top of the cluster interconnect network.
 
 ---
 
 ### References
-
 - Kubernetes official docs: [https://kubernetes.io/docs/](https://kubernetes.io/docs/)
 - kubeadm getting started: [https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
 - Flannel CNI: [https://github.com/flannel-io/flannel](https://github.com/flannel-io/flannel)
+- CNI plugins: [https://github.com/containernetworking/plugins](https://github.com/containernetworking/plugins)
 - Calico CNI: [https://docs.tigera.io/](https://docs.tigera.io/)
 - MetalLB: [https://metallb.universe.tf/](https://metallb.universe.tf/)
 - Longhorn: [https://longhorn.io/](https://longhorn.io/)
@@ -270,5 +446,6 @@ kubeadm token create --print-join-command
 ---
 
 #### Notes
-- For ultra-light clusters, consider k3s or MicroK8s. This guide focuses on upstream Kubernetes via `kubeadm` for the most “real” experience.
+- For ultra-light clusters, consider k3s or MicroK8s. This guide focuses on upstream Kubernetes via `kubeadm` for the most "real" experience.
 - If you later want high availability for the control plane, add additional control-plane nodes and front them with a virtual IP/load balancer.
+- **Always install CNI plugin binaries before running `kubeadm init`** to avoid pod creation failures.
