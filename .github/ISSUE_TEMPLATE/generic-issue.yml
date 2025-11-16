@@ -6,7 +6,7 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: ":eight_spoked_asterisk: Description"
+      label: "✳️ Description"
       description: Provide a detailed description of the issue
       placeholder: Describe the issue in detail...
     validations:
@@ -14,7 +14,7 @@ body:
   - type: textarea
     id: definition-of-done
     attributes:
-      label: ":white_check_mark: Definition of Done"
+      label: "✅ Definition of Done"
       description: Define the criteria for this issue to be considered complete
       placeholder: List the criteria for completion...
     validations:
