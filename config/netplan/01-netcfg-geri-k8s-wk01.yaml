@@ -9,9 +9,16 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
-        - 172.16.0.22/16
+        - 172.16.0.13/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
