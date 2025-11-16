@@ -57,18 +57,19 @@ This home lab includes three physical HP EliteDesk Mini systems — one control 
 
 ## 🧱 Cluster Architecture
 
-**Hardware**: 3 × HP EliteDesk Mini PCs  
+**Hardware**: 4 × HP EliteDesk Mini PCs  
 **Network**: Flat LAN (`172.16.0.0/24`) with static addressing  
 **Operating System**: Ubuntu Server 24.04 LTS  
 **Container Runtime**: containerd  
 **Deployment Tool**: kubeadm  
 **CNI**: Flannel (optionally Calico, Cilium later)  
 
-| Role | Hostname | CPU | RAM | Storage | Notes |
-|------|-----------|-----|-----|----------|-------|
-| Control Plane | `k8s-control` | 4 | 8–16 GB | NVMe/SATA | API server, controller, scheduler |
-| Worker Node 1 | `k8s-node1` | 4 | 8 GB | SSD | Runs pods/workloads |
-| Worker Node 2 | `k8s-node2` | 4 | 8 GB | SSD | Runs pods/workloads |
+| Role          | Hostname      | CPU | RAM     | Storage   | Notes                             |
+|---------------|---------------|-----|---------|-----------|-----------------------------------|
+| Control Plane | `k8s-control` | 4   | 8–16 GB | NVMe/SATA | API server, controller, scheduler |
+| Worker Node 1 | `k8s-node1`   | 4   | 8 GB    | SSD       | Runs pods/workloads               |
+| Worker Node 2 | `k8s-node2`   | 4   | 8 GB    | SSD       | Runs pods/workloads               |
+| Worker Node 3 | `k8s-node3`   | 4   | 8 GB    | SSD       | Runs pods/workloads               |
 
 ---
 
