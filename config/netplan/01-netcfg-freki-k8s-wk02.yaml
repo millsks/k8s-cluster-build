@@ -14,4 +14,4 @@ network:
     enp5s0f0:
       dhcp4: no
       addresses:
-        - 172.16.0.14/16
+        - 172.16.0.23/16
