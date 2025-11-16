@@ -22,7 +22,7 @@ Hostnames use Norse names plus **role identifiers** to make the purpose obvious 
 
 - Kubernetes:
   - `-cp`  → control plane
-  - `-wN` → worker node (N = 1, 2, 3…)
+  - `-wk`  → worker node
 - Virtualization:
   - `-hv` → hypervisor (Proxmox)
 - Storage:
@@ -64,14 +64,14 @@ All K8s nodes live under `*.cluster.home.arpa`:
 
 - `odin-cp`   – K8s control plane: `172.16.0.10`  
   → `odin-cp.cluster.home.arpa`
-- `huginn-w1` – worker node 1: `172.16.0.11`  
-  → `huginn-w1.cluster.home.arpa`
-- `muninn-w2` – worker node 2: `172.16.0.12`  
-  → `muninn-w2.cluster.home.arpa`
-- `geri-w3`   – worker node 3: `172.16.0.13`  
-  → `geri-w3.cluster.home.arpa`
-- `freki-w4`  – worker node 4: `172.16.0.14`  
-  → `freki-w4.cluster.home.arpa`
+- `huginn-wk` – worker node: `172.16.0.11`  
+  → `huginn-wk.cluster.home.arpa`
+- `muninn-wk` – worker node: `172.16.0.12`  
+  → `muninn-wk.cluster.home.arpa`
+- `geri-wk`   – worker node: `172.16.0.13`  
+  → `geri-wk.cluster.home.arpa`
+- `freki-wk`  – worker node: `172.16.0.14`  
+  → `freki-wk.cluster.home.arpa`
 
 ### 2.3 Virtualization
 
@@ -127,20 +127,20 @@ Create the following **A** records (DSM automatically appends `.home.arpa` to th
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Role                                  |
 |--------------------------|----------------------------------------|-----------------|---------------------------------------|
-| `odin-cp.cluster`        | `odin-cp.cluster.home.arpa`           | `172.16.0.10`   | K8s control plane                     |
-| `huginn-w1.cluster`      | `huginn-w1.cluster.home.arpa`         | `172.16.0.11`   | K8s worker 1                          |
-| `muninn-w2.cluster`      | `muninn-w2.cluster.home.arpa`         | `172.16.0.12`   | K8s worker 2                          |
-| `geri-w3.cluster`        | `geri-w3.cluster.home.arpa`           | `172.16.0.13`   | K8s worker 3                          |
-| `freki-w4.cluster`       | `freki-w4.cluster.home.arpa`          | `172.16.0.14`   | K8s worker 4                          |
-| `heimdall-hv.virtual`    | `heimdall-hv.virtual.home.arpa`       | `172.16.0.20`   | Proxmox hypervisor                    |
-| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`          | `172.16.0.5`    | Synology NAS (DNS + primary storage)  |
-| `niflheim-bak.storage`   | `niflheim-bak.storage.home.arpa`      | `172.16.0.30`   | Backup / cold storage                 |
-| `mimir-dns.net`          | `mimir-dns.net.home.arpa`             | `172.16.0.40`   | Infra services VM (DNS helpers, etc.) |
-| `gjallarhorn-rp.net`     | `gjallarhorn-rp.net.home.arpa`        | `172.16.0.41`   | Reverse proxy / ingress / alerts      |
-| `valhalla-sso.apps`      | `valhalla-sso.apps.home.arpa`         | `172.16.0.42`   | SSO / main portal                     |
-| `idun-media.media`       | `idun-media.media.home.arpa`          | `172.16.0.43`   | Media server                          |
-| `saga-wiki.docs`         | `saga-wiki.docs.home.arpa`            | `172.16.0.44`   | Wiki / docs                           |
-| `yggdrasil-iot.iot`      | `yggdrasil-iot.iot.home.arpa`         | `172.16.0.50`   | IoT / MQTT / home automation          |
+| `odin-cp.cluster`        | `odin-cp.cluster.home.arpa`           | `172.16.0.10`   | K8s control plane                      |
+| `huginn-wk.cluster`      | `huginn-wk.cluster.home.arpa`         | `172.16.0.11`   | K8s worker node                        |
+| `muninn-wk.cluster`      | `muninn-wk.cluster.home.arpa`         | `172.16.0.12`   | K8s worker node                        |
+| `geri-wk.cluster`        | `geri-wk.cluster.home.arpa`           | `172.16.0.13`   | K8s worker node                        |
+| `freki-wk.cluster`       | `freki-wk.cluster.home.arpa`          | `172.16.0.14`   | K8s worker node                        |
+| `heimdall-hv.virtual`    | `heimdall-hv.virtual.home.arpa`       | `172.16.0.20`   | Proxmox hypervisor                     |
+| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`          | `172.16.0.5`    | Synology NAS (DNS + primary storage)   |
+| `niflheim-bak.storage`   | `niflheim-bak.storage.home.arpa`      | `172.16.0.30`   | Backup / cold storage                  |
+| `mimir-dns.net`          | `mimir-dns.net.home.arpa`             | `172.16.0.40`   | Infra services VM (DNS helpers, etc.)  |
+| `gjallarhorn-rp.net`     | `gjallarhorn-rp.net.home.arpa`        | `172.16.0.41`   | Reverse proxy / ingress / alerts       |
+| `valhalla-sso.apps`      | `valhalla-sso.apps.home.arpa`         | `172.16.0.42`   | SSO / main portal                      |
+| `idun-media.media`       | `idun-media.media.home.arpa`          | `172.16.0.43`   | Media server                           |
+| `saga-wiki.docs`         | `saga-wiki.docs.home.arpa`            | `172.16.0.44`   | Wiki / docs                            |
+| `yggdrasil-iot.iot`      | `yggdrasil-iot.iot.home.arpa`         | `172.16.0.50`   | IoT / MQTT / home automation           |
 
 **How to add an A record in DSM:**
 
@@ -174,10 +174,10 @@ With the reverse zone selected:
 |-------------------|---------------------------------------------|
 | `5`               | `ymir-nas.storage.home.arpa.`              |
 | `10`              | `odin-cp.cluster.home.arpa.`               |
-| `11`              | `huginn-w1.cluster.home.arpa.`             |
-| `12`              | `muninn-w2.cluster.home.arpa.`             |
-| `13`              | `geri-w3.cluster.home.arpa.`               |
-| `14`              | `freki-w4.cluster.home.arpa.`              |
+| `11`              | `huginn-wk.cluster.home.arpa.`             |
+| `12`              | `muninn-wk.cluster.home.arpa.`             |
+| `13`              | `geri-wk.cluster.home.arpa.`               |
+| `14`              | `freki-wk.cluster.home.arpa.`              |
 | `20`              | `heimdall-hv.virtual.home.arpa.`           |
 | `30`              | `niflheim-bak.storage.home.arpa.`          |
 | `40`              | `mimir-dns.net.home.arpa.`                 |
@@ -287,10 +287,10 @@ Expected results:
 - **Key hosts:**
   - K8s control plane: `odin-cp.cluster.home.arpa` → `172.16.0.10`
   - K8s workers:
-    - `huginn-w1.cluster.home.arpa` → `172.16.0.11`
-    - `muninn-w2.cluster.home.arpa` → `172.16.0.12`
-    - `geri-w3.cluster.home.arpa` → `172.16.0.13`
-    - `freki-w4.cluster.home.arpa` → `172.16.0.14`
+    - `huginn-wk.cluster.home.arpa` → `172.16.0.11`
+    - `muninn-wk.cluster.home.arpa` → `172.16.0.12`
+    - `geri-wk.cluster.home.arpa` → `172.16.0.13`
+    - `freki-wk.cluster.home.arpa` → `172.16.0.14`
   - Proxmox: `heimdall-hv.virtual.home.arpa` → `172.16.0.20`
   - Storage: `ymir-nas.storage.home.arpa`, `niflheim-bak.storage.home.arpa`
   - Infra/Apps/IoT:
