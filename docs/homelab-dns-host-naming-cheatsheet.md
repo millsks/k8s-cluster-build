@@ -3,7 +3,7 @@
 This document describes how to:
 
 1. Use a Synology NAS (DSM) as the DNS server for a homelab.  
-2. Implement a Norse‑themed naming scheme for Kubernetes, Proxmox, storage, and services.  
+2. Implement a Norse‑themed naming scheme for Kubernetes, Proxmox, storage, and services, **with role identifiers in hostnames**.  
 3. Configure forward and reverse DNS zones for the `172.16.0.0/24` network and `home.arpa` domain.
 
 ## 1. Design Overview
@@ -14,46 +14,86 @@ This document describes how to:
 - **DNS server:** Synology NAS (DSM) running Synology’s **DNS Server** package.
 - **Synology hostname/theme:** `ymir` (primordial giant, central storage + DNS).
 
-Naming pattern for FQDNs:
+### 1.1 Naming Pattern
 
-- Kubernetes nodes: `*.cluster.home.arpa`
-- Virtualization (Proxmox): `*.virtual.home.arpa`
-- Storage: `*.storage.home.arpa`
-- Network/infra: `*.net.home.arpa`
-- Apps/portals: `*.apps.home.arpa`
-- Media: `*.media.home.arpa`
-- Docs: `*.docs.home.arpa`
-- IoT: `*.iot.home.arpa`
+Hostnames use Norse names plus **role identifiers** to make the purpose obvious at a glance:
+
+**Role suffix conventions:**
+
+- Kubernetes:
+  - `-cp`  → control plane
+  - `-wN` → worker node (N = 1, 2, 3…)
+- Virtualization:
+  - `-hv` → hypervisor (Proxmox)
+- Storage:
+  - `-nas` → primary NAS
+  - `-bak` → backup / cold storage
+- Infra / network:
+  - `-dns` → DNS/infra services
+  - `-rp`  → reverse proxy / ingress
+- Applications:
+  - `-sso`   → SSO / identity
+  - `-media` → media server
+  - `-wiki`  → documentation/wiki
+- IoT / automation:
+  - `-iot` → IoT / MQTT / HA
+
+**FQDN patterns:**
+
+- Kubernetes nodes: `name-role.cluster.home.arpa`
+- Virtualization: `name-role.virtual.home.arpa`
+- Storage: `name-role.storage.home.arpa`
+- Network/infra: `name-role.net.home.arpa`
+- Apps/portals: `name-role.apps.home.arpa`
+- Media: `name-role.media.home.arpa`
+- Docs: `name-role.docs.home.arpa`
+- IoT: `name-role.iot.home.arpa`
 
 ## 2. IP Address Plan (172.16.0.0/24)
 
-You can adjust this, but the following is a clean baseline:
+You can adjust this, but the following is a clean baseline.
 
-**Core infra (DNS + storage)**
+### 2.1 Core Infra (DNS + Storage)
 
-- `ymir` – Synology NAS (DNS server + primary storage): `172.16.0.5`
+- `ymir-nas` – Synology NAS (DNS server + primary storage): `172.16.0.5`  
+  → `ymir-nas.storage.home.arpa`
 
-**Kubernetes cluster**
+### 2.2 Kubernetes Cluster
 
-- `odin` – K8s control plane: `172.16.0.10`
-- `huginn` – worker node: `172.16.0.11`
-- `muninn` – worker node: `172.16.0.12`
-- `geri` – worker node: `172.16.0.13`
-- `freki` – worker node: `172.16.0.14`
+All K8s nodes live under `*.cluster.home.arpa`:
 
-**Virtualization**
+- `odin-cp`   – K8s control plane: `172.16.0.10`  
+  → `odin-cp.cluster.home.arpa`
+- `huginn-w1` – worker node 1: `172.16.0.11`  
+  → `huginn-w1.cluster.home.arpa`
+- `muninn-w2` – worker node 2: `172.16.0.12`  
+  → `muninn-w2.cluster.home.arpa`
+- `geri-w3`   – worker node 3: `172.16.0.13`  
+  → `geri-w3.cluster.home.arpa`
+- `freki-w4`  – worker node 4: `172.16.0.14`  
+  → `freki-w4.cluster.home.arpa`
 
-- `heimdall` – Proxmox server: `172.16.0.20`
+### 2.3 Virtualization
 
-**Additional infra & services (optional but pre‑reserved)**
+- `heimdall-hv` – Proxmox server (hypervisor): `172.16.0.20`  
+  → `heimdall-hv.virtual.home.arpa`
 
-- `niflheim` – backup / cold storage (NAS or VM): `172.16.0.30`
-- `mimir` – infra services VM: `172.16.0.40`
-- `gjallarhorn` – reverse proxy / ingress / alerting: `172.16.0.41`
-- `valhalla` – SSO / main portal: `172.16.0.42`
-- `idun` – media server (Plex/Jellyfin): `172.16.0.43`
-- `saga` – documentation / wiki: `172.16.0.44`
-- `yggdrasil` – IoT / MQTT / Home Assistant broker: `172.16.0.50`
+### 2.4 Additional Infra & Services (Optional / Reserved)
+
+- `niflheim-bak` – backup / cold storage (NAS or VM): `172.16.0.30`  
+  → `niflheim-bak.storage.home.arpa`
+- `mimir-dns` – infra services VM (DNS helpers, etc.): `172.16.0.40`  
+  → `mimir-dns.net.home.arpa`
+- `gjallarhorn-rp` – reverse proxy / ingress / alerting: `172.16.0.41`  
+  → `gjallarhorn-rp.net.home.arpa`
+- `valhalla-sso` – SSO / main portal: `172.16.0.42`  
+  → `valhalla-sso.apps.home.arpa`
+- `idun-media` – media server (Plex/Jellyfin): `172.16.0.43`  
+  → `idun-media.media.home.arpa`
+- `saga-wiki` – documentation / wiki: `172.16.0.44`  
+  → `saga-wiki.docs.home.arpa`
+- `yggdrasil-iot` – IoT / MQTT / Home Assistant broker: `172.16.0.50`  
+  → `yggdrasil-iot.iot.home.arpa`
 
 > Note: You do not need to deploy all of these immediately; having them reserved in DNS is harmless and helps keep the scheme consistent.
 
@@ -74,7 +114,7 @@ Ensure your Synology NAS has a **static IP**: `172.16.0.5` (or your chosen addre
 3. Configure:
    - **Domain type:** `Forward Zone`
    - **Domain name:** `home.arpa`
-   - **Master DNS server:** your NAS hostname (e.g., `ymir.storage.home.arpa` or whatever DSM suggests)
+   - **Master DNS server:** your NAS hostname (e.g., `ymir-nas.storage.home.arpa` or whatever DSM suggests)
    - **Enable Zone:** checked.
 4. Click **OK**.
 
@@ -85,27 +125,27 @@ This sets up the primary internal DNS zone for all hosts.
 In **DNS Server** → **Zones** → select `home.arpa` → **Edit** → **Resource Record**.  
 Create the following **A** records (DSM automatically appends `.home.arpa` to the “Name” field):
 
-| Name (DSM field)     | FQDN Created                         | IP Address      | Role                                  |
-|----------------------|--------------------------------------|-----------------|---------------------------------------|
-| `odin.cluster`       | `odin.cluster.home.arpa`            | `172.16.0.10`   | K8s control plane                     |
-| `huginn.cluster`     | `huginn.cluster.home.arpa`          | `172.16.0.11`   | K8s worker                            |
-| `muninn.cluster`     | `muninn.cluster.home.arpa`          | `172.16.0.12`   | K8s worker                            |
-| `geri.cluster`       | `geri.cluster.home.arpa`            | `172.16.0.13`   | K8s worker                            |
-| `freki.cluster`      | `freki.cluster.home.arpa`           | `172.16.0.14`   | K8s worker                            |
-| `heimdall.virtual`   | `heimdall.virtual.home.arpa`        | `172.16.0.20`   | Proxmox server                        |
-| `ymir.storage`       | `ymir.storage.home.arpa`            | `172.16.0.5`    | Synology NAS (DNS + primary storage)  |
-| `niflheim.storage`   | `niflheim.storage.home.arpa`        | `172.16.0.30`   | Backup / cold storage                 |
-| `mimir.net`          | `mimir.net.home.arpa`               | `172.16.0.40`   | Infra services VM (DNS helpers, etc.) |
-| `gjallarhorn.net`    | `gjallarhorn.net.home.arpa`         | `172.16.0.41`   | Reverse proxy / ingress / alerts      |
-| `valhalla.apps`      | `valhalla.apps.home.arpa`           | `172.16.0.42`   | SSO / main portal                     |
-| `idun.media`         | `idun.media.home.arpa`              | `172.16.0.43`   | Media server                          |
-| `saga.docs`          | `saga.docs.home.arpa`               | `172.16.0.44`   | Wiki / docs                           |
-| `yggdrasil.iot`      | `yggdrasil.iot.home.arpa`           | `172.16.0.50`   | IoT / MQTT / home automation          |
+| Name (DSM field)         | FQDN Created                           | IP Address      | Role                                  |
+|--------------------------|----------------------------------------|-----------------|---------------------------------------|
+| `odin-cp.cluster`        | `odin-cp.cluster.home.arpa`           | `172.16.0.10`   | K8s control plane                     |
+| `huginn-w1.cluster`      | `huginn-w1.cluster.home.arpa`         | `172.16.0.11`   | K8s worker 1                          |
+| `muninn-w2.cluster`      | `muninn-w2.cluster.home.arpa`         | `172.16.0.12`   | K8s worker 2                          |
+| `geri-w3.cluster`        | `geri-w3.cluster.home.arpa`           | `172.16.0.13`   | K8s worker 3                          |
+| `freki-w4.cluster`       | `freki-w4.cluster.home.arpa`          | `172.16.0.14`   | K8s worker 4                          |
+| `heimdall-hv.virtual`    | `heimdall-hv.virtual.home.arpa`       | `172.16.0.20`   | Proxmox hypervisor                    |
+| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`          | `172.16.0.5`    | Synology NAS (DNS + primary storage)  |
+| `niflheim-bak.storage`   | `niflheim-bak.storage.home.arpa`      | `172.16.0.30`   | Backup / cold storage                 |
+| `mimir-dns.net`          | `mimir-dns.net.home.arpa`             | `172.16.0.40`   | Infra services VM (DNS helpers, etc.) |
+| `gjallarhorn-rp.net`     | `gjallarhorn-rp.net.home.arpa`        | `172.16.0.41`   | Reverse proxy / ingress / alerts      |
+| `valhalla-sso.apps`      | `valhalla-sso.apps.home.arpa`         | `172.16.0.42`   | SSO / main portal                     |
+| `idun-media.media`       | `idun-media.media.home.arpa`          | `172.16.0.43`   | Media server                          |
+| `saga-wiki.docs`         | `saga-wiki.docs.home.arpa`            | `172.16.0.44`   | Wiki / docs                           |
+| `yggdrasil-iot.iot`      | `yggdrasil-iot.iot.home.arpa`         | `172.16.0.50`   | IoT / MQTT / home automation          |
 
 **How to add an A record in DSM:**
 
 - Click **Create** → **A** record.
-- **Name:** e.g., `odin.cluster`
+- **Name:** e.g., `odin-cp.cluster`
 - **IP address:** e.g., `172.16.0.10`
 - Leave TTL at default (e.g., 3600).
 - Click **OK** or **Apply**.
@@ -130,28 +170,28 @@ With the reverse zone selected:
 1. Click **Edit** → **Resource Record**.
 2. Create **PTR** records for each host:
 
-| Name (last octet) | PTR Target (FQDN, with trailing dot)    |
-|-------------------|------------------------------------------|
-| `5`               | `ymir.storage.home.arpa.`               |
-| `10`              | `odin.cluster.home.arpa.`               |
-| `11`              | `huginn.cluster.home.arpa.`             |
-| `12`              | `muninn.cluster.home.arpa.`             |
-| `13`              | `geri.cluster.home.arpa.`               |
-| `14`              | `freki.cluster.home.arpa.`              |
-| `20`              | `heimdall.virtual.home.arpa.`           |
-| `30`              | `niflheim.storage.home.arpa.`           |
-| `40`              | `mimir.net.home.arpa.`                  |
-| `41`              | `gjallarhorn.net.home.arpa.`            |
-| `42`              | `valhalla.apps.home.arpa.`              |
-| `43`              | `idun.media.home.arpa.`                 |
-| `44`              | `saga.docs.home.arpa.`                  |
-| `50`              | `yggdrasil.iot.home.arpa.`              |
+| Name (last octet) | PTR Target (FQDN, with trailing dot)       |
+|-------------------|---------------------------------------------|
+| `5`               | `ymir-nas.storage.home.arpa.`              |
+| `10`              | `odin-cp.cluster.home.arpa.`               |
+| `11`              | `huginn-w1.cluster.home.arpa.`             |
+| `12`              | `muninn-w2.cluster.home.arpa.`             |
+| `13`              | `geri-w3.cluster.home.arpa.`               |
+| `14`              | `freki-w4.cluster.home.arpa.`              |
+| `20`              | `heimdall-hv.virtual.home.arpa.`           |
+| `30`              | `niflheim-bak.storage.home.arpa.`          |
+| `40`              | `mimir-dns.net.home.arpa.`                 |
+| `41`              | `gjallarhorn-rp.net.home.arpa.`            |
+| `42`              | `valhalla-sso.apps.home.arpa.`             |
+| `43`              | `idun-media.media.home.arpa.`              |
+| `44`              | `saga-wiki.docs.home.arpa.`                |
+| `50`              | `yggdrasil-iot.iot.home.arpa.`             |
 
 **How to add a PTR record in DSM:**
 
 - Click **Create** → **PTR** record.
 - **Name:** e.g., `10`
-- **PTR:** e.g., `odin.cluster.home.arpa.`  
+- **PTR:** e.g., `odin-cp.cluster.home.arpa.`  
   (include the trailing dot for a fully qualified name, if DSM requires it)
 - Click **OK**.
 
@@ -211,21 +251,21 @@ nameserver 172.16.0.5
 **Test forward lookups:**
 
 ```bash
-ping odin.cluster.home.arpa
-ping heimdall.virtual.home.arpa
+ping odin-cp.cluster.home.arpa
+ping heimdall-hv.virtual.home.arpa
 ```
 
 Or using `dig` (if installed):
 
 ```bash
-dig +short odin.cluster.home.arpa
-dig +short heimdall.virtual.home.arpa
+dig +short odin-cp.cluster.home.arpa
+dig +short heimdall-hv.virtual.home.arpa
 ```
 
 Expected results:
 
-- `odin.cluster.home.arpa` → `172.16.0.10`
-- `heimdall.virtual.home.arpa` → `172.16.0.20`
+- `odin-cp.cluster.home.arpa` → `172.16.0.10`
+- `heimdall-hv.virtual.home.arpa` → `172.16.0.20`
 
 **Test reverse lookups:**
 
@@ -236,19 +276,29 @@ dig -x 172.16.0.5
 
 Expected results:
 
-- `172.16.0.10` → `odin.cluster.home.arpa`
-- `172.16.0.5` → `ymir.storage.home.arpa`
+- `172.16.0.10` → `odin-cp.cluster.home.arpa`
+- `172.16.0.5` → `ymir-nas.storage.home.arpa`
 
 ## 11. Summary Cheat Sheet
 
 - **Domain:** `home.arpa`
 - **Subnet:** `172.16.0.0/24`
-- **Synology/DNS:** `ymir.storage.home.arpa` → `172.16.0.5`
+- **Synology/DNS:** `ymir-nas.storage.home.arpa` → `172.16.0.5`
 - **Key hosts:**
-  - K8s control plane: `odin.cluster.home.arpa` → `172.16.0.10`
-  - K8s workers: `huginn`, `muninn`, `geri`, `freki` under `cluster.home.arpa`
-  - Proxmox: `heimdall.virtual.home.arpa` → `172.16.0.20`
-  - Storage: `ymir.storage.home.arpa`, `niflheim.storage.home.arpa`
-  - Infra/Apps/IoT: `mimir.net`, `gjallarhorn.net`, `valhalla.apps`, `idun.media`, `saga.docs`, `yggdrasil.iot`
+  - K8s control plane: `odin-cp.cluster.home.arpa` → `172.16.0.10`
+  - K8s workers:
+    - `huginn-w1.cluster.home.arpa` → `172.16.0.11`
+    - `muninn-w2.cluster.home.arpa` → `172.16.0.12`
+    - `geri-w3.cluster.home.arpa` → `172.16.0.13`
+    - `freki-w4.cluster.home.arpa` → `172.16.0.14`
+  - Proxmox: `heimdall-hv.virtual.home.arpa` → `172.16.0.20`
+  - Storage: `ymir-nas.storage.home.arpa`, `niflheim-bak.storage.home.arpa`
+  - Infra/Apps/IoT:
+    - `mimir-dns.net.home.arpa`
+    - `gjallarhorn-rp.net.home.arpa`
+    - `valhalla-sso.apps.home.arpa`
+    - `idun-media.media.home.arpa`
+    - `saga-wiki.docs.home.arpa`
+    - `yggdrasil-iot.iot.home.arpa`
 
-This structure gives you a coherent, extensible Norse‑themed naming scheme with proper internal DNS support, all anchored on your Synology NAS.
+This structure gives you a coherent, extensible Norse‑themed naming scheme with clear role identifiers and proper internal DNS support, all anchored on your Synology NAS.
