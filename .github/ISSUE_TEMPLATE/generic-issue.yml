@@ -1,0 +1,21 @@
+name: Generic Issue
+description: Create a generic issue for this project
+title: "[Issue]: "
+labels: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: ":eight_spoked_asterisk: Description"
+      description: Provide a detailed description of the issue
+      placeholder: Describe the issue in detail...
+    validations:
+      required: true
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: ":white_check_mark: Definition of Done"
+      description: Define the criteria for this issue to be considered complete
+      placeholder: List the criteria for completion...
+    validations:
+      required: true
