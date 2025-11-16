@@ -1,4 +1,4 @@
-# Component Architecture Diagram
+# K8s Component Architecture Diagram
 
 This document expands on the high-level network topology with labeled Kubernetes components and supporting services. It’s intended as a quick reference for how traffic flows through the cluster and where each subsystem runs.
 
