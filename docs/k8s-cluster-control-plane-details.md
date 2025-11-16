@@ -41,14 +41,14 @@ Namespaces provide multi-tenancy, isolation of resources, and scoping for RBAC. 
 #### kube-flannel
 
 ```
-NAMESPACE     NAME                      READY  STATUS   RESTARTS  AGE    IP             NODE           NOMINATED NODE  READINESS GATES
-kube-flannel  kube-flannel-ds-5zvxp     1/1    Running  0         3m25s  192.168.86.51  odin-k8s-cp01  <none>          <none>
+NAMESPACE     NAME                      READY  STATUS   RESTARTS  AGE    IP           NODE           NOMINATED NODE  READINESS GATES
+kube-flannel  kube-flannel-ds-5zvxp     1/1    Running  0         3m25s  172.16.0.10  odin-k8s-cp01  <none>          <none>
 ```
 
 - Workload type: DaemonSet pod (`kube-flannel-ds-*`)
 - Purpose: Implements the CNI overlay network (Flannel), providing pod-to-pod networking and the cluster-wide pod CIDR.
 - READY: `1/1` — all container(s) in the pod are healthy.
-- IP: `192.168.86.51` — this is the node IP where the DaemonSet runs, not a pod overlay IP. Flannel often runs in hostNetwork mode, so pod IP equals node IP.
+- IP: `172.16.0.10` — this is the node IP where the DaemonSet runs, not a pod overlay IP. Flannel often runs in hostNetwork mode, so pod IP equals node IP.
 - Restarts: `0` — stable since start.
 - Node: `odin-k8s-cp01` — as a DaemonSet, one instance per node.
 
@@ -64,16 +64,16 @@ Key checks:
 Core control-plane components and cluster DNS/proxy are here.
 
 ```
-kube-system  etcd-odin-k8s-cp01                      1/1  Running  0  4m13s  192.168.86.51  odin-k8s-cp01  <none>  <none>
+kube-system  etcd-odin-k8s-cp01                      1/1  Running  0  4m13s  172.16.0.10  odin-k8s-cp01  <none>  <none>
 ```
 - etcd:
   - Role: Strongly consistent key-value store backing the Kubernetes API state.
   - Single-member etcd is fine for a lab/single-node setup but not HA.
-  - IP: `192.168.86.51` (hostNetwork pod on the control-plane node).
+  - IP: `172.16.0.10` (hostNetwork pod on the control-plane node).
   - Availability note: etcd must be healthy for the API server and controllers to function.
 
 ```
-kube-system  kube-apiserver-odin-k8s-cp01            1/1  Running  0  4m13s  192.168.86.51  odin-k8s-cp01  <none>  <none>
+kube-system  kube-apiserver-odin-k8s-cp01            1/1  Running  0  4m13s  172.16.0.10  odin-k8s-cp01  <none>  <none>
 ```
 - kube-apiserver:
   - Role: Front door to the cluster; validates and processes REST requests, enforces RBAC, admission control, and talks to etcd.
@@ -81,21 +81,21 @@ kube-system  kube-apiserver-odin-k8s-cp01            1/1  Running  0  4m13s  192
   - Security: Typically exposes secure port 6443 locally; external access controlled via load balancer or direct.
 
 ```
-kube-system  kube-controller-manager-odin-k8s-cp01   1/1  Running  1  4m14s  192.168.86.51  odin-k8s-cp01  <none>  <none>
+kube-system  kube-controller-manager-odin-k8s-cp01   1/1  Running  1  4m14s  172.16.0.10  odin-k8s-cp01  <none>  <none>
 ```
 - kube-controller-manager:
   - Role: Runs controllers that reconcile desired vs. current state (e.g., Node, ReplicaSet, EndpointSlice, ServiceAccount tokens).
   - Restarts: `1` — a single restart early in bootstrap can be normal; monitor if it repeats.
 
 ```
-kube-system  kube-scheduler-odin-k8s-cp01            1/1  Running  1  4m13s  192.168.86.51  odin-k8s-cp01  <none>  <none>
+kube-system  kube-scheduler-odin-k8s-cp01            1/1  Running  1  4m13s  172.16.0.10  odin-k8s-cp01  <none>  <none>
 ```
 - kube-scheduler:
   - Role: Assigns pods to nodes based on resource requests, taints/tolerations, affinities, and policies.
   - Restarts: `1` — similar to controller manager; one restart during initialization is typically benign.
 
 ```
-kube-system  kube-proxy-xhbz5                        1/1  Running  0  4m    192.168.86.51  odin-k8s-cp01  <none>  <none>
+kube-system  kube-proxy-xhbz5                        1/1  Running  0  4m    172.16.0.10  odin-k8s-cp01  <none>  <none>
 ```
 - kube-proxy:
   - Role: Programs node-level networking rules (iptables or IPVS) for Kubernetes Services and Endpoints, enabling ClusterIP/NodePort traffic.

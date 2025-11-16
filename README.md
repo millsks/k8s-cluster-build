@@ -33,7 +33,7 @@ This home lab includes three physical HP EliteDesk Mini systems — one control 
 ```
                 ┌──────────────────────────────┐
                 │       Home Router/Switch     │
-                │     192.168.1.1 (Gateway)    │
+                │     172.16.0.1 (Gateway)     │
                 └──────────────┬───────────────┘
                                │
                      ──────────┼───────────
@@ -44,7 +44,7 @@ This home lab includes three physical HP EliteDesk Mini systems — one control 
 ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
 │ k8s-control      │  │ k8s-node1        │  │ k8s-node2        │
 │ Role: Control│   │  │ Role: Worker     │  │ Role: Worker     │
-│ IP: 192.168.1.10 │  │ IP: 192.168.1.11 │  │ IP: 192.168.1.12 │
+│ IP: 172.16.0.10  │  │ IP: 172.16.0.11  │  │ IP: 172.16.0.12  │
 │ AMD Ryzen 5 PRO  │  │ AMD Ryzen 5 PRO  │  │ AMD Ryzen 5 PRO  │
 │ 3400GE (4C/8T)   │  │ 3400GE (4C/8T)   │  │ 3400GE (4C/8T)   │
 │ 32 GB RAM / NVMe │  │ 32 GB RAM / NVMe │  │ 32 GB RAM / NVMe │
@@ -57,7 +57,7 @@ This home lab includes three physical HP EliteDesk Mini systems — one control 
 ## 🧱 Cluster Architecture
 
 **Hardware**: 3 × HP EliteDesk Mini PCs  
-**Network**: Flat LAN (e.g. `192.168.1.0/24`) with static addressing  
+**Network**: Flat LAN (`172.16.0.0/24`) with static addressing  
 **Operating System**: Ubuntu Server 24.04 LTS  
 **Container Runtime**: containerd  
 **Deployment Tool**: kubeadm  
