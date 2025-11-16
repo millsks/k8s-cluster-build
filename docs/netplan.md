@@ -11,12 +11,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.10/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: huginn-wk.cluster
@@ -32,12 +39,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.11/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: muninn-wk.cluster
@@ -53,12 +67,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.12/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: geri-wk.cluster
@@ -74,12 +95,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.13/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: freki-wk.cluster
@@ -95,12 +123,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.14/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: heimdall.virtual
@@ -116,12 +151,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.20/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: ymir.storage
@@ -137,12 +179,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.5/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: niflheim.storage
@@ -158,12 +207,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.30/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: mimir.net
@@ -179,12 +235,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.40/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: gjallarhorn.net
@@ -200,12 +263,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.41/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: valhalla.apps
@@ -221,12 +291,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.42/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: idun.media
@@ -242,12 +319,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.43/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: saga.docs
@@ -263,12 +347,19 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.44/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
 
 ## Host: yggdrasil.iot
@@ -284,10 +375,17 @@ network:
           auth:
             key-management: "psk"
             password: "WIFI_PASSWORD"
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
   ethernets:
     enp5s0f0:
       dhcp4: no
       addresses:
         - 172.16.0.50/24
+      nameservers:
+        addresses:
+          - 172.16.0.5
 ```
