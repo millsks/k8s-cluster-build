@@ -4,7 +4,7 @@ Below is a practical, step‑by‑step way to use your Synology NAS (DSM) as the
 
 I’ll assume:
 
-- Your Synology has a **static IP** (e.g. `192.168.1.50`).
+- Your Synology has a **static IP** (e.g. `172.16.0.50`).
 - Your router is doing **DHCP**.
 - Your homelab nodes have (or will have) static or DHCP‑reserved IPs.
 
@@ -61,26 +61,26 @@ With the `home.arpa` zone created, add the hosts.
 
    For example, assuming these IPs:
 
-   - `odin` (control plane): `192.168.1.10`
-   - `huginn` (worker): `192.168.1.11`
-   - `muninn` (worker): `192.168.1.12`
-   - `geri` (worker): `192.168.1.13`
-   - `freki` (worker): `192.168.1.14`
-   - `heimdall` (Proxmox): `192.168.1.20`
+   - `odin` (control plane): `172.16.0.10`
+   - `huginn` (worker): `172.16.0.11`
+   - `muninn` (worker): `172.16.0.12`
+   - `geri` (worker): `172.16.0.13`
+   - `freki` (worker): `172.16.0.14`
+   - `heimdall` (Proxmox): `172.16.0.20`
 
    Click **Create** → **A Record** and fill in:
 
    - **Name**: `odin.cluster`
    - **TTL**: leave default (e.g. 3600)
-   - **IP address**: `192.168.1.10`
+   - **IP address**: `172.16.0.10`
 
    Repeat for each:
 
-   - `huginn.cluster` → `192.168.1.11`
-   - `muninn.cluster` → `192.168.1.12`
-   - `geri.cluster` → `192.168.1.13`
-   - `freki.cluster` → `192.168.1.14`
-   - `heimdall.virtual` → `192.168.1.20`
+   - `huginn.cluster` → `172.16.0.11`
+   - `muninn.cluster` → `172.16.0.12`
+   - `geri.cluster` → `172.16.0.13`
+   - `freki.cluster` → `172.16.0.14`
+   - `heimdall.virtual` → `172.16.0.20`
 
    DSM will automatically append `.home.arpa` to the name, so the full FQDNs become:
 
@@ -100,21 +100,21 @@ This allows reverse DNS lookups (IP → name), which some tools like.
 1. In **DNS Server** → **Zones** tab, under **Reverse Zone**, click **Create** → **Master Zone**.
 2. Determine your network:
 
-   If your LAN is `192.168.1.0/24`, the reverse zone name will be:
+   If your LAN is `172.16.0.0/24`, the reverse zone name will be:
 
    - `1.168.192.in-addr.arpa`
 
 3. Fill in:
 
    - **Domain type**: `Reverse Zone`
-   - **Network**: `192.168.1.0`
+   - **Network**: `172.16.0.0`
    - DSM will set the correct reverse zone name.
 4. Click **OK**.
 5. Edit the reverse zone’s **Resource Record** and add **PTR records**:
 
    For each host:
 
-   - **Name**: host’s last octet (e.g. `10` for `192.168.1.10`)
+   - **Name**: host’s last octet (e.g. `10` for `172.16.0.10`)
    - **PTR**: FQDN (e.g. `odin.cluster.home.arpa.`)
 
    Example:
@@ -150,7 +150,7 @@ Now, anything not in `home.arpa` will be forwarded to the internet DNS.
 3. Look for **DNS server** or **Primary DNS**.
 4. Set **Primary DNS server** to your Synology IP, e.g.:
 
-   - `192.168.1.50`
+   - `172.16.0.50`
 
 5. (Optional) Set a secondary DNS to something public (e.g. `1.1.1.1`) or leave blank if you want all internal resolution to always hit Synology.
 6. Save/apply and **reboot or renew DHCP lease** on clients.
@@ -159,7 +159,7 @@ Now, anything not in `home.arpa` will be forwarded to the internet DNS.
 
 If your router won’t let you change DNS servers via DHCP, then on each node/PC:
 
-- Set **DNS server** to `192.168.1.50` manually in its network settings.
+- Set **DNS server** to `172.16.0.50` manually in its network settings.
 
 ## 8. Verify Name Resolution
 
@@ -174,7 +174,7 @@ From any device that should now use Synology DNS (your laptop, a node, etc.):
    You should see:
 
    ```text
-   nameserver 192.168.1.50
+   nameserver 172.16.0.50
    ```
 
 2. Test name resolution:
@@ -191,7 +191,7 @@ From any device that should now use Synology DNS (your laptop, a node, etc.):
    dig +short odin.cluster.home.arpa
    ```
 
-   You should see `192.168.1.10` (or whatever you configured).
+   You should see `172.16.0.10` (or whatever you configured).
 
 If these resolve correctly and respond to ping, your Synology DNS is working.
 
