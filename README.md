@@ -20,6 +20,7 @@ This repository contains:
 | `config/` | Kubernetes manifests, kubeadm configs, and networking templates |
 | `scripts/` | Helper scripts for provisioning, updates, and maintenance |
 | `README.md` | High-level overview and project context (you are here) |
+| `BRANCH-PROTECTION.md` | Quick guide for GitHub branch protection setup |
 | `LICENSE` | Open-source license (MIT recommended) |
 
 Additional deep-dive and step-by-step setup instructions are hosted in the [📖 Wiki](https://github.com/millsks/k8s-cluster-build/wiki).
@@ -140,6 +141,13 @@ Track progress in the [Issues](https://github.com/millsks/k8s-cluster-build/issu
 This is primarily a personal learning resource, but contributions and discussions are welcome!
 - Open an [Issue](https://github.com/millsks/k8s-cluster-build/issues) for ideas, improvements, or troubleshooting
 - Submit a PR for doc corrections or enhancements
+
+### Repository Management
+
+This repository uses branch protection to maintain code quality and prevent accidental changes to the main branch:
+- 🛡️ Main branch is protected from deletion and force pushes
+- 🔄 Feature branches and PRs are recommended for all changes
+- 📋 See [BRANCH-PROTECTION.md](BRANCH-PROTECTION.md) for setup instructions and workflow guidelines
 
 ---
 

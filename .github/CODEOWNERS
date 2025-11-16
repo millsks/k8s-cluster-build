@@ -1,0 +1,29 @@
+# CODEOWNERS file for k8s-cluster-build repository
+# 
+# This file defines code ownership for the repository.
+# While currently a solo project, this documents ownership patterns
+# and can be used for future collaboration or reference.
+#
+# Syntax: <file-pattern> <owner-username>
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repository
+* @millsks
+
+# Documentation files
+/docs/ @millsks
+*.md @millsks
+
+# Configuration files
+/config/ @millsks
+
+# Scripts and automation
+/scripts/ @millsks
+*.sh @millsks
+
+# Kubernetes manifests and configs
+*.yaml @millsks
+*.yml @millsks
+
+# GitHub specific configurations
+/.github/ @millsks
