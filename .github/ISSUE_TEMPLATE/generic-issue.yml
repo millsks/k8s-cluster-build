@@ -1,6 +1,5 @@
 name: Generic Issue
 description: Create a generic issue for this project
-title: "[Issue]: "
 labels: []
 body:
   - type: textarea
