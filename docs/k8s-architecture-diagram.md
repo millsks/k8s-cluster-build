@@ -12,19 +12,19 @@ This document expands on the high-level network topology with labeled Kubernetes
                                  v
     +----------------------------+-------------------------------+
     |                  Home Router / Switch (L2/L3)              |
-    |                    Gateway: 192.168.1.1                    |
+    |                    Gateway: 172.16.0.1                     |
     +----------------------------+-------------------------------+
                                  |
                                  v
     +----------------------------+-------------------------------+
     |                     Cluster Data Plane (LAN)               |
-    |                      Subnet: 192.168.1.0/24                |
+    |                      Subnet: 172.16.0.0/24                 |
     +----------------------------+-------------------------------+
       |                       |                       |
       v                       v                       v
 
     [k8s-control]           [k8s-node1]              [k8s-node2]
-    192.168.1.10            192.168.1.11             192.168.1.12
+    172.16.0.10             172.16.0.11              172.16.0.12
     AMD 3400GE / 32GB       AMD 3400GE / 32GB        AMD 3400GE / 32GB
     NVMe SSD                NVMe SSD                 NVMe SSD
 
@@ -60,7 +60,7 @@ This document expands on the high-level network topology with labeled Kubernetes
 
 3) External access to Services:
    - NodePort: client hits any node’s `<nodeIP>:<nodePort>`.
-   - MetalLB (planned): assigns IPs from 192.168.1.240-192.168.1.250 to `LoadBalancer` Services.
+   - MetalLB (planned): assigns IPs from 172.16.0.240-172.16.0.250 to `LoadBalancer` Services.
 
 4) Ingress (planned):
    - External -> Ingress IP/hostname -> NGINX Ingress Controller -> Service -> Pods.
@@ -75,7 +75,7 @@ This document expands on the high-level network topology with labeled Kubernetes
            |
            v
     +----------------------+
-    |  MetalLB IP Pool     |  e.g., 192.168.1.240-192.168.1.250
+    |  MetalLB IP Pool     |  e.g., 172.16.0.240-172.16.0.250
     |  (LoadBalancer VIPs) |
     +-----+----------------+
           |
@@ -98,18 +98,18 @@ This document expands on the high-level network topology with labeled Kubernetes
 
 ## Nodes and Responsibilities
 
-- k8s-control (192.168.1.10)
+- k8s-control (172.16.0.10)
   - kube-apiserver, controller-manager, scheduler
   - etcd (embedded single-node)
   - coredns, metrics-server (optional)
   - Acts as the management endpoint for kubectl
 
-- k8s-node1 (192.168.1.11)
+- k8s-node1 (172.16.0.11)
   - Runs workloads
   - kubelet, kube-proxy, Flannel (CNI)
   - CSI components if storage stack is deployed
 
-- k8s-node2 (192.168.1.12)
+- k8s-node2 (172.16.0.12)
   - Runs workloads
   - kubelet, kube-proxy, Flannel (CNI)
   - CSI components if storage stack is deployed
@@ -117,7 +117,7 @@ This document expands on the high-level network topology with labeled Kubernetes
 ## Planned Add-ons and Addressing
 
 - CNI: Flannel (10.244.0.0/16) for pod network
-- MetalLB: 192.168.1.240–192.168.1.250 reserved for `LoadBalancer` Services
+- MetalLB: 172.16.0.240–172.16.0.250 reserved for `LoadBalancer` Services
 - Ingress: NGINX Ingress Controller
 - Storage:
   - Option A: NFS-backed PVs via an external NAS

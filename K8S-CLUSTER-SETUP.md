@@ -9,7 +9,7 @@ Set up a production-like, bare-metal Kubernetes cluster at home using three HP E
 
 #### Hardware & Network Assumptions
 - Each EliteDesk: 8GB+ RAM, 60GB+ storage, wired Ethernet
-- Same LAN/subnet (e.g., `192.168.1.0/24`)
+- Same LAN/subnet (e.g., `172.16.0.0/24`)
 - BIOS: Virtualization enabled, UEFI, Secure Boot disabled
 - You can SSH between nodes
 - Either DHCP reservations or static IPs
@@ -55,10 +55,10 @@ network:
   ethernets:
     eno1:
       addresses:
-        - 192.168.1.10/24
+        - 172.16.0.10/24
       routes:
         - to: default
-          via: 192.168.1.1
+          via: 172.16.0.1
       nameservers:
         addresses: [1.1.1.1, 8.8.8.8]
 ```
@@ -202,7 +202,7 @@ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 
 **Example scenario:**
 - Wi-Fi interface (`wlp2s0`): `192.168.1.0/24` - Default route, internet access
-- Wired interface (`enp3s0`): `172.16.0.0/16` - Dedicated cluster interconnect
+- Wired interface (`enp3s0`): `172.16.0.0/24` - Dedicated cluster interconnect
 - Pod network: `10.244.0.0/16` - Flannel overlay
 
 **Why this matters:** Without `--apiserver-advertise-address`, kubeadm will bind the API server to the default route interface (Wi-Fi). Worker nodes on the wired network won't be able to reach the API server.
@@ -229,7 +229,7 @@ network:
     enp3s0:  # Replace with your wired interface name
       dhcp4: no
       addresses:
-        - 172.16.0.10/16  # Control plane IP on cluster network
+        - 172.16.0.10/24  # Control plane IP on cluster network
       # No gateway or nameservers - Wi-Fi handles internet
     wlp2s0:  # Wi-Fi interface (if applicable)
       dhcp4: yes
@@ -307,7 +307,7 @@ Alternative: Calico (advanced policy, BGP support) — see Calico docs for the c
 On each worker, run the `kubeadm join ...` command output by Step 6, for example:
 
 ```bash
-sudo kubeadm join 192.168.1.10:6443 --token <token> \
+sudo kubeadm join 172.16.0.10:6443 --token <token> \
   --discovery-token-ca-cert-hash sha256:<hash>
 ```
 
@@ -467,7 +467,7 @@ sudo kubeadm join 172.16.0.10:6443 --token <new-token> \
 Install MetalLB to support `LoadBalancer` Services on bare metal:
 
 - Docs: [MetalLB](https://metallb.universe.tf/)
-- Reserve an IP range in your LAN, e.g., `192.168.1.240-192.168.1.250`, and configure an IPAddressPool and L2Advertisement.
+- Reserve an IP range in your LAN, e.g., `172.16.0.240-172.16.0.250`, and configure an IPAddressPool and L2Advertisement.
 
 #### Ingress Controller
 
@@ -591,7 +591,7 @@ sudo ss -ltnp '( sport = :10250 or sport = :10257 or sport = :10259 )'
 
 #### API Server on Wrong Interface
 
-**Symptom:** API server is listening on Wi-Fi interface (`192.168.x.x`) instead of wired cluster network (`172.16.x.x`).
+**Symptom:** API server is listening on Wi-Fi interface (`192.168.x.x`) instead of wired cluster network (`172.16.0.x`).
 
 **Check which interface the API server is bound to:**
 
@@ -662,7 +662,7 @@ When using the setup described in this guide, you'll have three distinct network
 | Network | CIDR | Purpose | Used by |
 |---------|------|---------|---------|
 | **LAN/Wi-Fi** | `192.168.1.0/24` (example) | External access, management | SSH, kubectl from workstation |
-| **Cluster interconnect** | Node IPs (e.g., `192.168.1.10-12` or `172.16.0.10-12`) | Node-to-node communication | kubelet, API server, etcd |
+| **Cluster interconnect** | Node IPs (e.g., `172.16.0.10-14`) | Node-to-node communication | kubelet, API server, etcd |
 | **Pod network (Flannel)** | `10.244.0.0/16` | Pod-to-pod overlay network | CNI (VXLAN tunnels) |
 
 These networks must not overlap. The pod network is a virtual overlay that runs on top of the cluster interconnect network.
@@ -674,7 +674,7 @@ For setups with separate management and cluster networks:
 | Network | CIDR | Interface | Purpose |
 |---------|------|-----------|---------|
 | **Wi-Fi/Management** | `192.168.1.0/24` | `wlp2s0` | Internet access, external management |
-| **Cluster Interconnect** | `172.16.0.0/16` | `enp3s0` | High-bandwidth node-to-node communication |
+| **Cluster Interconnect** | `172.16.0.0/24` | `enp3s0` | High-bandwidth node-to-node communication |
 | **Pod Network** | `10.244.0.0/16` | `flannel.1` (virtual) | Pod-to-pod communication via VXLAN overlay |
 
 **Benefits of separate networks:**
