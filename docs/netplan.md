@@ -1,4 +1,4 @@
-## Host: odin-k8s-cp01
+## Host: odin-cp.cluster
 ```yaml
 network:
   version: 2
@@ -19,7 +19,7 @@ network:
         - 172.16.0.10/24
 ```
 
-## Host: huginn-k8s-wk01
+## Host: huginn-wk.cluster
 ```yaml
 network:
   version: 2
@@ -40,7 +40,7 @@ network:
         - 172.16.0.11/24
 ```
 
-## Host: muninn-k8s-wk02
+## Host: muninn-wk.cluster
 ```yaml
 network:
   version: 2
@@ -61,7 +61,7 @@ network:
         - 172.16.0.12/24
 ```
 
-## Host: geri-k8s-wk01
+## Host: geri-wk.cluster
 ```yaml
 network:
   version: 2
@@ -82,7 +82,7 @@ network:
         - 172.16.0.13/24
 ```
 
-## Host: freki-k8s-wk02
+## Host: freki-wk.cluster
 ```yaml
 network:
   version: 2
@@ -103,7 +103,7 @@ network:
         - 172.16.0.14/24
 ```
 
-## Host: heimdall-virtual
+## Host: heimdall.virtual
 ```yaml
 network:
   version: 2
@@ -124,7 +124,7 @@ network:
         - 172.16.0.20/24
 ```
 
-## Host: ymir-storage
+## Host: ymir.storage
 ```yaml
 network:
   version: 2
@@ -145,7 +145,7 @@ network:
         - 172.16.0.5/24
 ```
 
-## Host: niflheim-storage
+## Host: niflheim.storage
 ```yaml
 network:
   version: 2
@@ -166,7 +166,7 @@ network:
         - 172.16.0.30/24
 ```
 
-## Host: mimir-net
+## Host: mimir.net
 ```yaml
 network:
   version: 2
@@ -187,7 +187,7 @@ network:
         - 172.16.0.40/24
 ```
 
-## Host: gjallarhorn-net
+## Host: gjallarhorn.net
 ```yaml
 network:
   version: 2
@@ -208,7 +208,7 @@ network:
         - 172.16.0.41/24
 ```
 
-## Host: valhalla-apps
+## Host: valhalla.apps
 ```yaml
 network:
   version: 2
@@ -229,7 +229,7 @@ network:
         - 172.16.0.42/24
 ```
 
-## Host: idun-media
+## Host: idun.media
 ```yaml
 network:
   version: 2
@@ -250,7 +250,7 @@ network:
         - 172.16.0.43/24
 ```
 
-## Host: saga-docs
+## Host: saga.docs
 ```yaml
 network:
   version: 2
@@ -271,7 +271,7 @@ network:
         - 172.16.0.44/24
 ```
 
-## Host: yggdrasil-iot
+## Host: yggdrasil.iot
 ```yaml
 network:
   version: 2
