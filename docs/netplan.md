@@ -16,7 +16,7 @@ network:
     enp5s0f0:
       dhcp4: no
       addresses:
-        - 172.16.0.10/16
+        - 172.16.0.10/24
 ```
 
 ## Host: huginn-k8s-wk01
@@ -37,7 +37,7 @@ network:
     enp5s0f0:
       dhcp4: no
       addresses:
-        - 172.16.0.20/16
+        - 172.16.0.20/24
 ```
 
 ## Host: muninn-k8s-wk02
@@ -58,7 +58,7 @@ network:
     enp5s0f0:
       dhcp4: no
       addresses:
-        - 172.16.0.21/16
+        - 172.16.0.21/24
 ```
 
 ## Host: geri-k8s-wk01
@@ -79,7 +79,7 @@ network:
     enp5s0f0:
       dhcp4: no
       addresses:
-        - 172.16.0.22/16
+        - 172.16.0.22/24
 ```
 
 ## Host: freki-k8s-wk02
@@ -100,5 +100,5 @@ network:
     enp5s0f0:
       dhcp4: no
       addresses:
-        - 172.16.0.23/16
+        - 172.16.0.23/24
 ```
