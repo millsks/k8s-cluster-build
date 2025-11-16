@@ -1,7 +1,8 @@
 name: Generic Issue
 description: Create a generic issue for this project
 labels: []
-projects: ["Home Lab Build and Deploy"]
+projects:
+  - millsks/10
 body:
   - type: textarea
     id: description
