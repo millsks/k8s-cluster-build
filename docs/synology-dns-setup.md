@@ -4,7 +4,7 @@ Below is a practical, step‑by‑step way to use your Synology NAS (DSM) as the
 
 I’ll assume:
 
-- Your Synology has a **static IP** (e.g. `172.16.0.50`).
+- Your Synology has a **static IP** (e.g. `172.16.0.5`).
 - Your router is doing **DHCP**.
 - Your homelab nodes have (or will have) static or DHCP‑reserved IPs.
 
