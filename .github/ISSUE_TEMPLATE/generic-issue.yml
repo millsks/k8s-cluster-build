@@ -3,6 +3,8 @@ description: Create a generic issue for this project
 labels: []
 projects:
   - millsks/10
+assignees:
+  - millsks
 body:
   - type: textarea
     id: description
