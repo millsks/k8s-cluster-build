@@ -1,9 +1,15 @@
 network:
   version: 2
+  renderer: networkd
 
   wifis:
     wlp6s0:
-      dhcp4: true
+      dhcp4: no
+      addresses:
+        - 192.168.86.252/24
+      routes:
+        - to: default
+          via: 192.168.86.1
       access-points:
         "WIFI-SSID":
           auth:
@@ -20,6 +26,7 @@ network:
       addresses:
         - 172.16.0.12/24
       nameservers:
+        search:
+          - home.arpa
         addresses:
           - 172.16.0.5
-
