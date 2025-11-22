@@ -300,6 +300,61 @@ Alternative: Calico (advanced policy, BGP support) — see Calico docs for the c
 
 ---
 
+### Generating the kubeadm join token (control plane)
+
+After you run `kubeadm init` on the control plane, kubeadm prints a `kubeadm join` line you can copy to worker nodes. If you need to generate a new token or re-print a join command later, run the following on the control plane (k8s-control):
+
+```bash
+# Print a ready-to-run join command (token + discovery CA hash)
+sudo kubeadm token create --print-join-command
+```
+
+Example output:
+
+```
+sudo kubeadm join 172.16.0.10:6443 --token abcdef.0123456789abcdef --discovery-token-ca-cert-hash sha256:<hash>
+```
+
+Useful token commands:
+
+```bash
+# List existing tokens
+sudo kubeadm token list
+
+# Create a token with a custom TTL (e.g., 12 hours)
+sudo kubeadm token create --ttl 12h
+
+# Create a specific token (format: 6chars.16chars)
+sudo kubeadm token create mytokn.0123456789abcdef --ttl 24h
+
+# Create a non-expiring token (use with caution):
+sudo kubeadm token create --ttl 0
+```
+
+If you only need the CA certificate hash (the discovery-token-ca-cert-hash) separately, you can compute it on the control plane from the cluster CA certificate:
+
+```bash
+sudo openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | \
+  sudo openssl rsa -pubin -outform der 2>/dev/null | \
+  openssl dgst -sha256 -hex | sed 's/^.* //' | awk '{print "sha256:" $0}'
+```
+
+Notes and best practices:
+
+- Run all token/CA-hash commands on the control plane node (k8s-control) where `/etc/kubernetes/pki/ca.crt` exists.
+- Tokens expire (default TTL 24h). Generate a new token with `kubeadm token create` or use `--ttl` to extend lifetime.
+- Avoid using non-expiring tokens in production; rotate tokens if you suspect compromise.
+- The `kubeadm join` printed by `--print-join-command` already includes the CA hash; prefer that to avoid mistakes.
+- For adding additional control-plane nodes, you also need the certificate key produced by:
+
+```bash
+sudo kubeadm init phase upload-certs --upload-certs
+```
+
+This command prints a certificate key you must include on control-plane joins (the control-plane join command includes `--certificate-key <key>`).
+
+---
+
 ### Step 8: Join worker nodes (`k8s-node1`, `k8s-node2`)
 
 **Before joining workers, ensure CNI plugins are installed on each worker node** (see Step 4.5).
