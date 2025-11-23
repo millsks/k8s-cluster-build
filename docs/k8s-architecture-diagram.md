@@ -18,7 +18,7 @@ This document expands on the high-level network topology with labeled Kubernetes
                                 |
                                 v
 +----------------------------------------------------------------------------------+
-|                  Cluster Data Plane (LAN)  —  Subnet: 172.16.0.0/24              |
+|                  Cluster Data Plane (LAN)  --  Subnet: 172.16.0.0/24             |
 |                                                                                  |
 |  +----------------------+   +----------------------+   +----------------------+  |
 |  | k8s-control          |   | k8s-node1            |   | k8s-node2            |  |
