@@ -4,50 +4,67 @@ This document expands on the high-level network topology with labeled Kubernetes
 
 ## Logical Component View
 
-    +------------------------------------------------------------+
-    |                        External Clients                    |
-    |                 (Browser, CLI, CI/CD, etc.)                |
-    +----------------------------+-------------------------------+
-                                 |
-                                 v
-    +----------------------------+-------------------------------+
-    |                  Home Router / Switch (L2/L3)              |
-    |                    Gateway: 172.16.0.1                     |
-    +----------------------------+-------------------------------+
-                                 |
-                                 v
-    +----------------------------+-------------------------------+
-    |                     Cluster Data Plane (LAN)               |
-    |                      Subnet: 172.16.0.0/24                 |
-    +----------------------------+-------------------------------+
-      |                       |                       |
-      v                       v                       v
+```text
++--------------------------------------------------------------------------------+
+|                              External Clients                                  |
+|                        (Browser, CLI, CI/CD, etc.)                             |
++-------------------------------+------------------------------------------------+
+                                |
+                                v
++-------------------------------+------------------------------------------------+
+|                       Home Router / Switch (L2/L3)                             |
+|                            Gateway: 172.16.0.1                                 |
++-------------------------------+------------------------------------------------+
+                                |
+                                v
++----------------------------------------------------------------------------------+
+|                  Cluster Data Plane (LAN)  --  Subnet: 172.16.0.0/24             |
+|                                                                                  |
+|  +----------------------+   +----------------------+   +----------------------+  |
+|  | k8s-control          |   | k8s-node1            |   | k8s-node2            |  |
+|  | 172.16.0.10          |   | 172.16.0.11          |   | 172.16.0.12          |  |
+|  | AMD 3400GE           |   | AMD 3400GE           |   | AMD 3400GE           |  |
+|  | 32GB RAM             |   | 32GB RAM             |   | 32GB RAM             |  |
+|  | 1TB NVMe SSD         |   | 1TB NVMe SSD         |   | 1TB NVMe SSD         |  |
+|  +----------------------+   +----------------------+   +----------------------+  |
+|                                                                                  |
++-------------------------------+--------------------------------------------------+
+                                |
+                                v
+            +---------------------------------------------------------------+
+            |                     Control Plane (logical)                   |
+            |  kube-apiserver   etcd (embedded)   controller-manager        |
+            |  scheduler        coredns (addon)   metrics-server (opt.)     |
+            +---------------------------------------------------------------+
+                                |
+                                v
+            +---------------------------------------------------------------+
+            |                    Flannel CNI (overlay)                      |
+            |                    Pod network: 10.244.0.0/16                 |
+            +---------------------------------------------------------------+
+                                |
+                                v
++--------------------------+                 +--------------------------------+
+| Kubernetes Services      | <---------------| Load Balancing & Ingress Layer |
+| (ClusterIP / NodePort /  |                 |  MetalLB IP Pool:              |
+|  LoadBalancer)           |                 |  172.16.0.240 - 172.16.0.250   |
+|                          |                 |  NGINX Ingress Controller      |
++--------------------------+                 +--------------------------------+
+                                ^
+                                |
+                                |
++-----------------------------------------------------------------------------+
+|                               Storage Options                               |
+|  - NFS-backed PVs (external NAS)                                            |
+|  - Longhorn / OpenEBS (replicated block storage via CSI)                    |
++-----------------------------------------------------------------------------+
+```
 
-    [k8s-control]           [k8s-node1]              [k8s-node2]
-    172.16.0.10             172.16.0.11              172.16.0.12
-    AMD 3400GE / 32GB       AMD 3400GE / 32GB        AMD 3400GE / 32GB
-    NVMe SSD                NVMe SSD                 NVMe SSD
-
-    Control Plane (k8s-control):
-    +-----------------------------------------------------------+
-    | kube-apiserver  | etcd (embedded) | controller-manager    |
-    | scheduler       | coredns (addon) | metrics-server (opt.) |
-    +-----------------------------------------------------------+
-                    |                                  ^
-                    |                                  |
-                    v                                  |
-             Flannel CNI (overlay) --------------------+
-                    |                                  |
-                    v                                  |
-             Pod-to-pod network (10.244.0.0/16)        |
-                    |                                  |
-    +-----------------------------------------------------------+
-    | Workers: kubelet | kube-proxy | CNI (Flannel) | CSI (opt) |
-    | - Runs user workloads (Deployments, DaemonSets, Jobs)     |
-    | - NodePort/LoadBalancer Services exposed via:             |
-    |     * NodePort (TCP/UDP)                                  |
-    |     * MetalLB (allocates LAN IPs)                         |
-    +-----------------------------------------------------------+
+Notes on diagram:
+- Connections shown top-to-bottom represent typical request and control/data flow:
+  External Clients -> Router -> LAN -> Control Plane & Workers -> Flannel overlay -> Pods/Services.
+- MetalLB + Ingress are presented as the external-facing load balancing/ingress layer.
+- Storage options are shown as logical backends accessible to the worker nodes via CSI/NFS.
 
 ## Traffic Flows (Typical)
 
@@ -71,45 +88,50 @@ This document expands on the high-level network topology with labeled Kubernetes
 
 ## Detailed ASCII Diagram (Planned State With MetalLB + Ingress)
 
-    Internet / LAN Clients
-           |
-           v
-    +----------------------+
-    |  MetalLB IP Pool     |  e.g., 172.16.0.240-172.16.0.250
-    |  (LoadBalancer VIPs) |
-    +-----+----------------+
-          |
-          v
-    +----------------------+        +----------------------+
-    |  NGINX Ingress Ctrl  | <----> |  Kubernetes Services |
-    |  (DaemonSet/Deploy)  |        |  ClusterIP / NodePort|
-    +----------+-----------+        +----------+-----------+
-               |                               |
-               v                               v
-        +------+------+                  +-----+------+
-        |   Pods /   |                  |   Pods /   |
-        | Deployments|                  | Deployments|
-        +------------+                  +------------+
+```text
+Internet / LAN Clients
+       |
+       v
++----------------------+
+|  MetalLB IP Pool     |  e.g., 172.16.0.240-172.16.0.250
+|  (LoadBalancer VIPs) |
++-----+----------------+
+      |
+      v
++----------------------+        +----------------------+
+|  NGINX Ingress Ctrl  | <----> |  Kubernetes Services |
+|  (DaemonSet/Deploy)  |        |  ClusterIP / NodePort|
++----------+-----------+        +----------+-----------+
+           |                               |
+           v                               v
+    +------+-----+                  +-----+------+
+    |   Pods /   |                  |   Pods /   |
+    | Deployments|                  | Deployments|
+    +------------+                  +------------+
 
-    Under the hood on each node:
-    +-----------------------------------------------------------+
-    | kubelet | kube-proxy | Flannel (CNI) | CSI (storage, opt) |
-    +-----------------------------------------------------------+
+Under the hood on each node:
++-----------------------------------------------------------+
+| kubelet | kube-proxy | Flannel (CNI) | CSI (storage, opt) |
++-----------------------------------------------------------+
+```
 
 ## Nodes and Responsibilities
 
 - k8s-control (172.16.0.10)
+  - Hardware: AMD 3400GE, 32GB RAM, 1TB NVMe SSD
   - kube-apiserver, controller-manager, scheduler
   - etcd (embedded single-node)
   - coredns, metrics-server (optional)
   - Acts as the management endpoint for kubectl
 
 - k8s-node1 (172.16.0.11)
+  - Hardware: AMD 3400GE, 32GB RAM, 1TB NVMe SSD
   - Runs workloads
   - kubelet, kube-proxy, Flannel (CNI)
   - CSI components if storage stack is deployed
 
 - k8s-node2 (172.16.0.12)
+  - Hardware: AMD 3400GE, 32GB RAM, 1TB NVMe SSD
   - Runs workloads
   - kubelet, kube-proxy, Flannel (CNI)
   - CSI components if storage stack is deployed
