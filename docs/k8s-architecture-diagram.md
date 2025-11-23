@@ -48,8 +48,8 @@ This document expands on the high-level network topology with labeled Kubernetes
 | Kubernetes Services      | <---------------| Load Balancing & Ingress Layer |
 | (ClusterIP / NodePort /  |                 |  MetalLB IP Pool:              |
 |  LoadBalancer)           |                 |  172.16.0.240 - 172.16.0.250   |
-+--------------------------+                 |  NGINX Ingress Controller      |
-                                             +--------------------------------+
+|                          |                 |  NGINX Ingress Controller      |
++--------------------------+                 +--------------------------------+
                                 ^
                                 |
                                 |
