@@ -55,7 +55,8 @@ This document expands on the high-level network topology with labeled Kubernetes
                                 |
 +-----------------------------------------------------------------------------+
 |                               Storage Options                               |
-|  - NFS-backed PVs (external NAS)                                            |
+|  - NFS-backed PVs (Synology DS925+ NAS)                                     |
+|    * Hardware: 4x 14TB WD Red Pro NAS drives                                |
 |  - Longhorn / OpenEBS (replicated block storage via CSI)                    |
 +-----------------------------------------------------------------------------+
 ```
@@ -83,7 +84,7 @@ Notes on diagram:
    - External -> Ingress IP/hostname -> NGINX Ingress Controller -> Service -> Pods.
 
 5) Storage (options):
-   - NFS: PVs backed by NAS/export.
+   - NFS: PVs backed by Synology DS925+ NAS (4x 14TB WD Red Pro drives).
    - Longhorn/OpenEBS: local or replicated block storage across nodes (CSI).
 
 ## Detailed ASCII Diagram (Planned State With MetalLB + Ingress)
@@ -142,7 +143,7 @@ Under the hood on each node:
 - MetalLB: 172.16.0.240–172.16.0.250 reserved for `LoadBalancer` Services
 - Ingress: NGINX Ingress Controller
 - Storage:
-  - Option A: NFS-backed PVs via an external NAS
+  - Option A: NFS-backed PVs via Synology DS925+ NAS (4x 14TB WD Red Pro drives)
   - Option B: Longhorn with replicated volumes across worker nodes
 - Monitoring:
   - Prometheus for metrics collection, Alertmanager for alerts

@@ -72,7 +72,7 @@ With the `home.arpa` forward zone created:
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Description                        |
 |--------------------------|----------------------------------------|-----------------|------------------------------------|
-| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`          | `172.16.0.5`    | Synology NAS + DNS server          |
+| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`          | `172.16.0.5`    | Synology DS925+ NAS (4x 14TB WD Red Pro drives) + DNS server          |
 | `niflheim-bak.storage`   | `niflheim-bak.storage.home.arpa`      | `172.16.0.30`   | Backup / cold storage (future)     |
 
 ### 4.4 Infra / Network (`*.net.home.arpa`)

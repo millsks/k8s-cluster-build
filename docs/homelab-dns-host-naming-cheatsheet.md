@@ -55,7 +55,7 @@ You can adjust this, but the following is a clean baseline.
 
 ### 2.1 Core Infra (DNS + Storage)
 
-- `ymir-nas` – Synology NAS (DNS server + primary storage): `172.16.0.5`  
+- `ymir-nas` – Synology DS925+ NAS (4x 14TB WD Red Pro drives) - DNS server + primary storage: `172.16.0.5`  
   → `ymir-nas.storage.home.arpa`
 
 ### 2.2 Kubernetes Cluster
@@ -133,7 +133,7 @@ Create the following **A** records (DSM automatically appends `.home.arpa` to th
 | `geri-wk.cluster`        | `geri-wk.cluster.home.arpa`           | `172.16.0.13`   | K8s worker node                        |
 | `freki-wk.cluster`       | `freki-wk.cluster.home.arpa`          | `172.16.0.14`   | K8s worker node                        |
 | `heimdall-hv.virtual`    | `heimdall-hv.virtual.home.arpa`       | `172.16.0.20`   | Proxmox hypervisor                     |
-| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`          | `172.16.0.5`    | Synology NAS (DNS + primary storage)   |
+| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`          | `172.16.0.5`    | Synology DS925+ NAS (4x 14TB WD Red Pro drives) - DNS + primary storage   |
 | `niflheim-bak.storage`   | `niflheim-bak.storage.home.arpa`      | `172.16.0.30`   | Backup / cold storage                  |
 | `mimir-dns.net`          | `mimir-dns.net.home.arpa`             | `172.16.0.40`   | Infra services VM (DNS helpers, etc.)  |
 | `gjallarhorn-rp.net`     | `gjallarhorn-rp.net.home.arpa`        | `172.16.0.41`   | Reverse proxy / ingress / alerts       |
