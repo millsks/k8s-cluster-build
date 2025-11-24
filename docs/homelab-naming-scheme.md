@@ -74,6 +74,7 @@ Storage servers, NAS, backup boxes:
 
 - Primary NAS / storage server: `ymir`  
   (primordial giant from which the world is made – central data)
+  - Hardware: Synology DS925+ with 4x 14TB WD Red Pro NAS drives
 - Backup NAS: `niflheim`  
   (cold, dark realm – good for “cold storage” backups)
 - Off-site / external backup (if you ever name it): `hel`  
