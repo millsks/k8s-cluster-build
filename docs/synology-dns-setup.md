@@ -56,40 +56,40 @@ With the `home.arpa` forward zone created:
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Description        |
 |--------------------------|----------------------------------------|-----------------|--------------------|
-| `odin-cp.cluster`        | `odin-cp.cluster.home.arpa`           | `172.16.0.10`   | K8s control plane  |
-| `huginn-w1.cluster`      | `huginn-w1.cluster.home.arpa`         | `172.16.0.11`   | K8s worker 1       |
-| `muninn-w2.cluster`      | `muninn-w2.cluster.home.arpa`         | `172.16.0.12`   | K8s worker 2       |
-| `geri-w3.cluster`        | `geri-w3.cluster.home.arpa`           | `172.16.0.13`   | K8s worker 3       |
-| `freki-w4.cluster`       | `freki-w4.cluster.home.arpa`          | `172.16.0.14`   | K8s worker 4       |
+| `odin-cp.cluster`        | `odin-cp.cluster.home.arpa`            | `172.16.0.10`   | K8s control plane  |
+| `huginn-w1.cluster`      | `huginn-w1.cluster.home.arpa`          | `172.16.0.11`   | K8s worker 1       |
+| `muninn-w2.cluster`      | `muninn-w2.cluster.home.arpa`          | `172.16.0.12`   | K8s worker 2       |
+| `geri-w3.cluster`        | `geri-w3.cluster.home.arpa`            | `172.16.0.13`   | K8s worker 3       |
+| `freki-w4.cluster`       | `freki-w4.cluster.home.arpa`           | `172.16.0.14`   | K8s worker 4       |
 
 ### 4.2 Virtualization (`*.virtual.home.arpa`)
 
-| Name (DSM field)         | FQDN Created                           | IP Address      | Description               |
-|--------------------------|----------------------------------------|-----------------|---------------------------|
-| `heimdall-hv.virtual`    | `heimdall-hv.virtual.home.arpa`       | `172.16.0.20`   | Proxmox hypervisor node   |
+| Name (DSM field)         | FQDN Created                           | IP Address      | Description              |
+|--------------------------|----------------------------------------|-----------------|--------------------------|
+| `heimdall-hv.virtual`    | `heimdall-hv.virtual.home.arpa`        | `172.16.0.20`   | Proxmox hypervisor node  |
 
 ### 4.3 Storage (`*.storage.home.arpa`)
 
-| Name (DSM field)         | FQDN Created                           | IP Address      | Description                        |
-|--------------------------|----------------------------------------|-----------------|------------------------------------|
-| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`          | `172.16.0.5`    | Synology DS925+ NAS (4x 14TB WD Red Pro drives) + DNS server          |
-| `niflheim-bak.storage`   | `niflheim-bak.storage.home.arpa`      | `172.16.0.30`   | Backup / cold storage (future)     |
+| Name (DSM field)         | FQDN Created                           | IP Address      | Description                                                  |
+|--------------------------|----------------------------------------|-----------------|--------------------------------------------------------------|
+| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`           | `172.16.0.5`    | Synology DS925+ NAS (4x 14TB WD Red Pro drives) + DNS server |
+| `niflheim-bak.storage`   | `niflheim-bak.storage.home.arpa`       | `172.16.0.30`   | Backup / cold storage (future)                               |
 
 ### 4.4 Infra / Network (`*.net.home.arpa`)
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Description                          |
 |--------------------------|----------------------------------------|-----------------|--------------------------------------|
-| `mimir-dns.net`          | `mimir-dns.net.home.arpa`             | `172.16.0.40`   | Infra/DNS helper VM (optional)       |
-| `gjallarhorn-rp.net`     | `gjallarhorn-rp.net.home.arpa`        | `172.16.0.41`   | Reverse proxy / ingress / alerting   |
+| `mimir-dns.net`          | `mimir-dns.net.home.arpa`              | `172.16.0.40`   | Infra/DNS helper VM (optional)       |
+| `gjallarhorn-rp.net`     | `gjallarhorn-rp.net.home.arpa`         | `172.16.0.41`   | Reverse proxy / ingress / alerting   |
 
 ### 4.5 Apps / Media / Docs / IoT
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Description                |
 |--------------------------|----------------------------------------|-----------------|----------------------------|
-| `valhalla-sso.apps`      | `valhalla-sso.apps.home.arpa`         | `172.16.0.42`   | SSO / main portal (future) |
-| `idun-media.media`       | `idun-media.media.home.arpa`          | `172.16.0.43`   | Media server               |
-| `saga-wiki.docs`         | `saga-wiki.docs.home.arpa`            | `172.16.0.44`   | Wiki / documentation       |
-| `yggdrasil-iot.iot`      | `yggdrasil-iot.iot.home.arpa`         | `172.16.0.50`   | IoT / MQTT / HA broker     |
+| `valhalla-sso.apps`      | `valhalla-sso.apps.home.arpa`          | `172.16.0.42`   | SSO / main portal (future) |
+| `idun-media.media`       | `idun-media.media.home.arpa`           | `172.16.0.43`   | Media server               |
+| `saga-wiki.docs`         | `saga-wiki.docs.home.arpa`             | `172.16.0.44`   | Wiki / documentation       |
+| `yggdrasil-iot.iot`      | `yggdrasil-iot.iot.home.arpa`          | `172.16.0.50`   | IoT / MQTT / HA broker     |
 
 #### How to add an A record in DSM
 
@@ -121,7 +121,7 @@ With the reverse zone created:
 3. Create **PTR** records for each host:
 
 | Name (last octet) | PTR Target (FQDN with trailing dot)      |
-|-------------------|-------------------------------------------|
+|-------------------|------------------------------------------|
 | `5`               | `ymir-nas.storage.home.arpa.`            |
 | `10`              | `odin-cp.cluster.home.arpa.`             |
 | `11`              | `huginn-w1.cluster.home.arpa.`           |
