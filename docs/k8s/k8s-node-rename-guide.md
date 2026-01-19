@@ -7,7 +7,7 @@ This document outlines the complete process of renaming a Kubernetes control pla
 ```bash
 kubectl get nodes
 NAME            STATUS     ROLES           AGE   VERSION
-huggin-wk       Ready      <none>          60s   v1.30.14
+huginn-wk       Ready      <none>          60s   v1.30.14
 odin-k8s-cp01   NotReady   control-plane   12d   v1.30.14
 ```
 
@@ -195,7 +195,7 @@ NAME      STATUS   ROLES           AGE   VERSION
 odin-cp   Ready    control-plane   117s  v1.30.14
 ```
 
-### Step 10: Rejoin Worker Node (huggin-wk)
+### Step 10: Rejoin Worker Node (huginn-wk)
 
 SSH into the worker node and reset it:
 
@@ -221,7 +221,7 @@ kubectl get nodes
 **Final output:**
 ```
 NAME        STATUS   ROLES           AGE    VERSION
-huggin-wk   Ready    <none>          16s    v1.30.14
+huginn-wk   Ready    <none>          16s    v1.30.14
 odin-cp     Ready    control-plane   117s   v1.30.14
 ```
 
@@ -232,13 +232,13 @@ odin-cp     Ready    control-plane   117s   v1.30.14
 The `<none>` in the ROLES column is normal for worker nodes, but you can add a cosmetic label:
 
 ```bash
-kubectl label node huggin-wk node-role.kubernetes.io/worker=worker
+kubectl label node huginn-wk node-role.kubernetes.io/worker=worker
 ```
 
 This will display:
 ```
 NAME        STATUS   ROLES           AGE    VERSION
-huggin-wk   Ready    worker          16s    v1.30.14
+huginn-wk   Ready    worker          16s    v1.30.14
 odin-cp     Ready    control-plane   117s   v1.30.14
 ```
 
@@ -285,7 +285,7 @@ This process successfully:
 1. ✅ Deleted the old node `odin-k8s-cp01` from the cluster
 2. ✅ Changed the system hostname to `odin-cp`
 3. ✅ Reinitialized the Kubernetes cluster with new hostname
-4. ✅ Rejoined the worker node `huggin-wk`
+4. ✅ Rejoined the worker node `huginn-wk`
 5. ✅ Verified cluster health and node readiness
 
 **Total downtime:** Approximately 2-3 minutes from reset to cluster Ready state.
