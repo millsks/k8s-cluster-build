@@ -495,11 +495,4 @@ generate_join_command() {
 }
 
 # Run main function
-main() {
-# Variables are set
-echo "Script start time: 2025-11-10 13:35:45 UTC"
-# Validate authentication & run main code
-}
-
-# Run main function
 main
