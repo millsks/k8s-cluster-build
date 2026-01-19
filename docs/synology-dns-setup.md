@@ -1,22 +1,22 @@
-# Synology DNS Setup for Homelab (`home.arpa`, 172.16.0.0/24)
+# Synology DNS Setup for Homelab (`home.arpa`, 172.16.1.0/24)
 
 This document explains how to configure a Synology NAS (DSM) as the DNS server for the homelab, using:
 
-- Network: `172.16.0.0/24`
+- Network: `172.16.1.0/24`
 - Internal DNS domain: `home.arpa`
 - Norse‑themed hostnames with role identifiers, such as:
   - `odin-cp.cluster.home.arpa` (K8s control plane)
   - `heimdall-hv.virtual.home.arpa` (Proxmox hypervisor)
   - `ymir-nas.storage.home.arpa` (Synology NAS + DNS)
 
-> For the full host naming scheme, see: **Homelab DNS & Host Naming with Synology NAS (172.16.0.0/24, `home.arpa`)**.
+> For the full host naming scheme, see: **Homelab DNS & Host Naming with Synology NAS (172.16.1.0/24, `home.arpa`)**.
 
 ## 1. Prerequisites
 
 - Synology NAS running DSM.
 - Synology NAS has a **static IP** on the LAN, e.g.:  
-  `ymir-nas` → `172.16.0.5`
-- Homelab subnet: `172.16.0.0/24`.
+  `ymir-nas` → `172.16.1.5`
+- Homelab subnet: `172.16.1.0/24`.
 - You have admin access to:
   - DSM (Synology web UI).
   - Your router’s DHCP settings (to point clients at Synology DNS).
@@ -56,59 +56,60 @@ With the `home.arpa` forward zone created:
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Description        |
 |--------------------------|----------------------------------------|-----------------|--------------------|
-| `odin-cp.cluster`        | `odin-cp.cluster.home.arpa`            | `172.16.0.10`   | K8s control plane  |
-| `huginn-w1.cluster`      | `huginn-w1.cluster.home.arpa`          | `172.16.0.11`   | K8s worker 1       |
-| `muninn-w2.cluster`      | `muninn-w2.cluster.home.arpa`          | `172.16.0.12`   | K8s worker 2       |
-| `geri-w3.cluster`        | `geri-w3.cluster.home.arpa`            | `172.16.0.13`   | K8s worker 3       |
-| `freki-w4.cluster`       | `freki-w4.cluster.home.arpa`           | `172.16.0.14`   | K8s worker 4       |
+| `odin-cp.cluster`        | `odin-cp.cluster.home.arpa`            | `172.16.1.201`  | K8s control plane  |
+| `huginn-wk.cluster`      | `huginn-wk.cluster.home.arpa`          | `172.16.1.202`  | K8s worker 1       |
+| `muninn-wk.cluster`      | `muninn-wk.cluster.home.arpa`          | `172.16.1.203`  | K8s worker 2       |
+| `freki-wk.cluster`       | `freki-wk.cluster.home.arpa`           | `172.16.1.204`  | K8s worker 3       |
+| `geri-wk.cluster`        | `geri-wk.cluster.home.arpa`            | `172.16.1.205`  | K8s worker 4       |
+| `sleipnir-wk.cluster`    | `sleipnir-wk.cluster.home.arpa`        | `172.16.1.206`  | K8s worker 5       |
 
 ### 4.2 Virtualization (`*.virtual.home.arpa`)
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Description              |
 |--------------------------|----------------------------------------|-----------------|--------------------------|
-| `heimdall-hv.virtual`    | `heimdall-hv.virtual.home.arpa`        | `172.16.0.20`   | Proxmox hypervisor node  |
+| `heimdall-hv.virtual`    | `heimdall-hv.virtual.home.arpa`        | `172.16.1.20`   | Proxmox hypervisor node  |
 
 ### 4.3 Storage (`*.storage.home.arpa`)
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Description                                                  |
 |--------------------------|----------------------------------------|-----------------|--------------------------------------------------------------|
-| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`           | `172.16.0.5`    | Synology DS925+ NAS (4x 14TB WD Red Pro drives) + DNS server |
-| `niflheim-bak.storage`   | `niflheim-bak.storage.home.arpa`       | `172.16.0.30`   | Backup / cold storage (future)                               |
+| `ymir-nas.storage`       | `ymir-nas.storage.home.arpa`           | `172.16.1.5`    | Synology DS925+ NAS (4x 14TB WD Red Pro drives) + DNS server |
+| `niflheim-bak.storage`   | `niflheim-bak.storage.home.arpa`       | `172.16.1.30`   | Backup / cold storage (future)                               |
 
 ### 4.4 Infra / Network (`*.net.home.arpa`)
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Description                          |
 |--------------------------|----------------------------------------|-----------------|--------------------------------------|
-| `mimir-dns.net`          | `mimir-dns.net.home.arpa`              | `172.16.0.40`   | Infra/DNS helper VM (optional)       |
-| `gjallarhorn-rp.net`     | `gjallarhorn-rp.net.home.arpa`         | `172.16.0.41`   | Reverse proxy / ingress / alerting   |
+| `mimir-dns.net`          | `mimir-dns.net.home.arpa`              | `172.16.1.40`   | Infra/DNS helper VM (optional)       |
+| `gjallarhorn-rp.net`     | `gjallarhorn-rp.net.home.arpa`         | `172.16.1.41`   | Reverse proxy / ingress / alerting   |
 
 ### 4.5 Apps / Media / Docs / IoT
 
 | Name (DSM field)         | FQDN Created                           | IP Address      | Description                |
 |--------------------------|----------------------------------------|-----------------|----------------------------|
-| `valhalla-sso.apps`      | `valhalla-sso.apps.home.arpa`          | `172.16.0.42`   | SSO / main portal (future) |
-| `idun-media.media`       | `idun-media.media.home.arpa`           | `172.16.0.43`   | Media server               |
-| `saga-wiki.docs`         | `saga-wiki.docs.home.arpa`             | `172.16.0.44`   | Wiki / documentation       |
-| `yggdrasil-iot.iot`      | `yggdrasil-iot.iot.home.arpa`          | `172.16.0.50`   | IoT / MQTT / HA broker     |
+| `valhalla-sso.apps`      | `valhalla-sso.apps.home.arpa`          | `172.16.1.42`   | SSO / main portal (future) |
+| `idun-media.media`       | `idun-media.media.home.arpa`           | `172.16.1.43`   | Media server               |
+| `saga-wiki.docs`         | `saga-wiki.docs.home.arpa`             | `172.16.1.44`   | Wiki / documentation       |
+| `yggdrasil-iot.iot`      | `yggdrasil-iot.iot.home.arpa`          | `172.16.1.50`   | IoT / MQTT / HA broker     |
 
 #### How to add an A record in DSM
 
 - Click **Create** → **A** record.
 - **Name:** `odin-cp.cluster` (for example).
-- **IP address:** `172.16.0.10`.
+- **IP address:** `172.16.1.201`.
 - Leave TTL at default.
 - Click **OK** or **Apply**.
 - Repeat for all entries above.
 
-## 5. Create the Reverse DNS Zone (`172.16.0.0/24`)
+## 5. Create the Reverse DNS Zone (`172.16.1.0/24`)
 
 Reverse DNS enables IP → hostname lookups.
 
 1. In **DNS Server** → **Zones** tab.
 2. Under **Reverse Zone**, click **Create** → **Master Zone**.
 3. Configure:
-   - **Network:** `172.16.0.0`
-   - DSM will set the reverse zone name to: `0.16.172.in-addr.arpa`.
+   - **Network:** `172.16.1.0`
+   - DSM will set the reverse zone name to: `1.16.172.in-addr.arpa`.
    - Ensure **Enable Zone** is checked.
 4. Click **OK**.
 
@@ -116,18 +117,13 @@ Reverse DNS enables IP → hostname lookups.
 
 With the reverse zone created:
 
-1. Select the `0.16.172.in-addr.arpa` reverse zone.
+1. Select the `1.16.172.in-addr.arpa` reverse zone.
 2. Click **Edit** → **Resource Record**.
 3. Create **PTR** records for each host:
 
 | Name (last octet) | PTR Target (FQDN with trailing dot)      |
 |-------------------|------------------------------------------|
 | `5`               | `ymir-nas.storage.home.arpa.`            |
-| `10`              | `odin-cp.cluster.home.arpa.`             |
-| `11`              | `huginn-w1.cluster.home.arpa.`           |
-| `12`              | `muninn-w2.cluster.home.arpa.`           |
-| `13`              | `geri-w3.cluster.home.arpa.`             |
-| `14`              | `freki-w4.cluster.home.arpa.`            |
 | `20`              | `heimdall-hv.virtual.home.arpa.`         |
 | `30`              | `niflheim-bak.storage.home.arpa.`        |
 | `40`              | `mimir-dns.net.home.arpa.`               |
@@ -136,6 +132,12 @@ With the reverse zone created:
 | `43`              | `idun-media.media.home.arpa.`            |
 | `44`              | `saga-wiki.docs.home.arpa.`              |
 | `50`              | `yggdrasil-iot.iot.home.arpa.`           |
+| `201`             | `odin-cp.cluster.home.arpa.`             |
+| `202`             | `huginn-wk.cluster.home.arpa.`           |
+| `203`             | `muninn-wk.cluster.home.arpa.`           |
+| `204`             | `freki-wk.cluster.home.arpa.`            |
+| `205`             | `geri-wk.cluster.home.arpa.`             |
+| `206`             | `sleipnir-wk.cluster.home.arpa.`         |
 
 #### How to add a PTR record in DSM
 
@@ -167,7 +169,7 @@ Any domain not in `home.arpa` will now be forwarded upstream.
 1. Log in to your **router**’s admin UI.
 2. Go to **LAN** / **DHCP** settings.
 3. Set **Primary DNS server** to the Synology NAS IP:
-   - `172.16.0.5`
+   - `172.16.1.5`
 4. Optionally:
    - Leave **Secondary DNS** blank, or
    - Set a public resolver (e.g. `1.1.1.1`).  
@@ -179,7 +181,7 @@ Any domain not in `home.arpa` will now be forwarded upstream.
 
 On each host (if DHCP DNS settings can’t be changed):
 
-- Set **DNS server** to: `172.16.0.5`.
+- Set **DNS server** to: `172.16.1.5`.
 
 ## 9. Verify DNS Setup
 
@@ -194,7 +196,7 @@ cat /etc/resolv.conf
 You should see:
 
 ```text
-nameserver 172.16.0.5
+nameserver 172.16.1.5
 ```
 
 ### 9.2 Test Forward Lookups
@@ -215,21 +217,21 @@ dig +short ymir-nas.storage.home.arpa
 
 Expected IPs:
 
-- `odin-cp.cluster.home.arpa` → `172.16.0.10`
-- `heimdall-hv.virtual.home.arpa` → `172.16.0.20`
-- `ymir-nas.storage.home.arpa` → `172.16.0.5`
+- `odin-cp.cluster.home.arpa` → `172.16.1.201`
+- `heimdall-hv.virtual.home.arpa` → `172.16.1.20`
+- `ymir-nas.storage.home.arpa` → `172.16.1.5`
 
 ### 9.3 Test Reverse Lookups
 
 ```bash
-dig -x 172.16.0.10
-dig -x 172.16.0.5
+dig -x 172.16.1.201
+dig -x 172.16.1.5
 ```
 
 Expected PTRs:
 
-- `172.16.0.10` → `odin-cp.cluster.home.arpa`
-- `172.16.0.5` → `ymir-nas.storage.home.arpa`
+- `172.16.1.201` → `odin-cp.cluster.home.arpa`
+- `172.16.1.5` → `ymir-nas.storage.home.arpa`
 
 ## 10. Example Usage in the Homelab
 
