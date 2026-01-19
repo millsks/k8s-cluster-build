@@ -1,17 +1,19 @@
-27.0.0.1 localhost
+127.0.0.1 localhost
 127.0.1.1 odin-cp.local
 
-172.16.0.10 odin-cp odin-cp.cluster odin-cp.cluster.home.arpa
-172.16.0.11 huggin-wk huggin-wk.cluster huggin-wk.cluster.home.arpa
-172.16.0.12 munnin-wk munnin-wk.cluster munnin-wk.cluster.home.arpa
-172.16.0.13 freki-wk freki-wk.cluster freki-wk.cluster.home.arpa
-172.16.0.14 geri-wk geri-wk.cluster geri-wk.cluster.home.arpa
+172.16.1.201 odin-cp odin-cp.cluster odin-cp.cluster.home.arpa
+172.16.1.202 huggin-wk huggin-wk.cluster huggin-wk.cluster.home.arpa
+172.16.1.203 munnin-wk munnin-wk.cluster munnin-wk.cluster.home.arpa
+172.16.1.204 freki-wk freki-wk.cluster freki-wk.cluster.home.arpa
+172.16.1.205 geri-wk geri-wk.cluster geri-wk.cluster.home.arpa
+172.16.1.206 sleipnir-wk sleipnir-wk.cluster sleipnir-wk.cluster.home.arpa
 
-192.168.86.250 odin-cp.wifi
-192.168.86.251 huggin-wk.wifi
-192.168.86.252 munnin-wk.wifi
-192.168.86.253 freki-wk.wifi
-192.168.86.254 geri-wk.wifi
+192.168.86.201 odin-cp.wifi
+192.168.86.202 huggin-wk.wifi
+192.168.86.203 munnin-wk.wifi
+192.168.86.204 freki-wk.wifi
+192.168.86.205 geri-wk.wifi
+192.168.86.206 sleipnir-wk.wifi
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     ip6-localhost ip6-loopback
