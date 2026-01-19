@@ -27,6 +27,8 @@ set -euo pipefail
 #   --skip-join                  Skip joining the cluster (prepare only)
 #   --k8s-version VERSION        Kubernetes version (default: v1.30)
 #   --cni-version VERSION        CNI plugins version (default: v1.3.0)
+#   --enable-livepatch           Enable Ubuntu Livepatch (requires token)
+#   --livepatch-token TOKEN      Ubuntu Pro token for Livepatch
 #
 # Example (prepare and join):
 #   sudo ./setup-worker-node.sh \
@@ -65,6 +67,8 @@ SKIP_UPDATES=false
 SKIP_JOIN=false
 K8S_VERSION="v1.30"
 CNI_VERSION="v1.3.0"
+ENABLE_LIVEPATCH=false
+LIVEPATCH_TOKEN=""
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -129,6 +133,15 @@ while [[ $# -gt 0 ]]; do
             CNI_VERSION="$2"
             shift 2
             ;;
+        --enable-livepatch)
+            ENABLE_LIVEPATCH=true
+            shift
+            ;;
+        --livepatch-token)
+            LIVEPATCH_TOKEN="$2"
+            ENABLE_LIVEPATCH=true
+            shift 2
+            ;;
         -h|--help)
             grep "^#" "$0" | grep -v "#!/bin/bash" | sed 's/^# //'
             exit 0
@@ -149,6 +162,11 @@ fi
 
 if [[ -z "$CLUSTER_IP" ]]; then
     echo -e "${RED}Error: --cluster-ip is required${NC}"
+    exit 1
+fi
+
+if [[ "$ENABLE_LIVEPATCH" == true ]] && [[ -z "$LIVEPATCH_TOKEN" ]]; then
+    echo -e "${RED}Error: --livepatch-token is required when --enable-livepatch is specified${NC}"
     exit 1
 fi
 
@@ -180,6 +198,34 @@ check_root() {
     fi
 }
 
+enable_livepatch() {
+    if ! command -v pro &> /dev/null; then
+        log_info "Installing ubuntu-advantage-tools"
+        apt install -y ubuntu-advantage-tools
+    fi
+    
+    # Check if already attached
+    if pro status | grep -q "esm-infra: enabled"; then
+        log_info "Ubuntu Pro already attached"
+    else
+        log_info "Attaching Ubuntu Pro subscription"
+        pro attach "$LIVEPATCH_TOKEN"
+    fi
+    
+    # Enable livepatch
+    log_info "Enabling Livepatch"
+    pro enable livepatch
+    
+    # Verify livepatch status
+    if canonical-livepatch status | grep -q "running"; then
+        log_info "Livepatch is running successfully"
+        canonical-livepatch status
+    else
+        log_warn "Livepatch may not be running correctly"
+        canonical-livepatch status
+    fi
+}
+
 # Main script
 main() {
     check_root
@@ -207,6 +253,12 @@ main() {
         DEBIAN_FRONTEND=noninteractive apt upgrade -y
     else
         log_warn "Skipping system updates"
+    fi
+    
+    # Step 3a: Enable Livepatch (optional)
+    if [[ "$ENABLE_LIVEPATCH" == true ]]; then
+        log_info "Step 3a: Enabling Ubuntu Livepatch"
+        enable_livepatch
     fi
     
     # Step 4: Install containerd
